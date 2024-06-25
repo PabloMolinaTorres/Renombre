@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificador de Fotos</title>
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Lato', sans-serif;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #fff;
+        }
+        .container {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+        .leftMenu {
+            width: 320px;
+            height: 100vh;
+            border-right: 1px solid #eeeeee;
+            background-color: #fff;
+            overflow-y: auto;
+        }
+        .leftMenu .intro {
+            font-size: 12px;
+            padding: 20px 20px 0;
+        }
+        .leftMenu textarea {
+            width: calc(100% - 40px);
+            border: 1px solid #eee;
+            margin: 20px;
+            height: calc(100% - 150px);
+            font-family: monospace;
+        }
+        .leftMenu button {
+            width: calc(100% - 40px);
+            border: none;
+            margin: 0 20px 20px;
+            background-color: #8fca00;
+            height: 50px;
+            line-height: 50px;
+            padding: 0;
+            border-radius: 5px;
+            color: white;
+            font-size: 12px;
+            letter-spacing: .075em;
+            cursor: pointer;
+        }
+        .rightContainer {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #fff;
+            position: relative;
+        }
+        .thumbnail {
+            display: inline-block;
+            width: 150px;
+            height: 150px;
+            margin: 10px;
+            position: relative;
+        }
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .thumbnail .sku {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            text-align: center;
+            font-size: 12px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="leftMenu">
+            <div class="intro">
+                <div>Verificar imágenes desde:</div><br>
+                <textarea name="skus" id="skus" cols="30" rows="10" placeholder="Ingresá los SKUs, uno debajo de otro"></textarea>
+                <button id="buscar">VERIFICAR</button>
+            </div>
+        </div>
+        <div class="rightContainer">
+            <div id="thumbnailContainer">
+                <!-- Thumbnails will be displayed here -->
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#buscar').click(function() {
+            $('#thumbnailContainer').empty();
+            var skus = $('#skus').val().split('\n');
+            skus.forEach(function(sku) {
+                sku = sku.trim();
+                if (sku !== "") {
+                    for (let i = 1; i <= 10; i++) {
+                        let variant = (i < 10 ? `_${i}` : `_${("0" + i).slice(-2)}`);
+                        createThumbnail(sku + variant);
+                    }
+                }
+            });
+        });
+
+        function createThumbnail(sku) {
+            let url = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/' + sku + '/w=1500,h=1500,fit=pad';
+            var img = new Image();
+            img.src = url;
+            img.alt = sku;
+            img.onload = function() {
+                var thumbnail = $('<div class="thumbnail"></div>');
+                thumbnail.append(img);
+                thumbnail.append('<div class="sku">' + sku + '</div>');
+                $('#thumbnailContainer').append(thumbnail);
+            };
+            img.onerror = function() {
+                console.error("Error al cargar la imagen para SKU: " + sku);
+            };
+        }
+    </script>
+</body>
+</html>
