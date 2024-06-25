@@ -109,6 +109,12 @@
             font-size: 14px;
             text-align: center;
         }
+        .divider {
+            width: 100%;
+            height: 1px;
+            background-color: #ccc;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -130,10 +136,13 @@
         $('#buscar').click(function() {
             $('#thumbnailContainer').empty();
             var skus = $('#skus').val().split('\n');
-            skus.forEach(function(sku) {
+            skus.forEach(function(sku, index) {
                 sku = sku.trim();
                 if (sku !== "") {
                     var row = $('<div class="thumbnail-row"></div>');
+                    if (index > 0) {
+                        $('#thumbnailContainer').append('<div class="divider"></div>');
+                    }
                     $('#thumbnailContainer').append(row);
                     var variants = ['_01', '_02', '_1', '_10', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9'];
                     displayThumbnailsInOrder(sku, variants, row);
