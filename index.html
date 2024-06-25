@@ -67,12 +67,22 @@
             background-color: #fff;
             position: relative;
         }
+        .thumbnail-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
         .thumbnail {
             display: inline-block;
             width: 150px;
             height: 150px;
             margin: 10px;
             position: relative;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            text-align: center;
+            line-height: 150px;
+            color: #888;
         }
         .thumbnail img {
             width: 100%;
@@ -114,15 +124,17 @@
             skus.forEach(function(sku) {
                 sku = sku.trim();
                 if (sku !== "") {
+                    var row = $('<div class="thumbnail-row"></div>');
+                    $('#thumbnailContainer').append(row);
                     for (let i = 1; i <= 10; i++) {
                         let variant = (i < 10 ? `_${i}` : `_${("0" + i).slice(-2)}`);
-                        createThumbnail(sku + variant);
+                        createThumbnail(sku + variant, row);
                     }
                 }
             });
         });
 
-        function createThumbnail(sku) {
+        function createThumbnail(sku, row) {
             let url = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/' + sku + '/w=1500,h=1500,fit=pad';
             var img = new Image();
             img.src = url;
@@ -131,10 +143,11 @@
                 var thumbnail = $('<div class="thumbnail"></div>');
                 thumbnail.append(img);
                 thumbnail.append('<div class="sku">' + sku + '</div>');
-                $('#thumbnailContainer').append(thumbnail);
+                row.append(thumbnail);
             };
             img.onerror = function() {
-                console.error("Error al cargar la imagen para SKU: " + sku);
+                var thumbnail = $('<div class="thumbnail">' + sku + '</div>');
+                row.append(thumbnail);
             };
         }
     </script>
