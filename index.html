@@ -125,33 +125,32 @@
                     var row = $('<div class="thumbnail-row"></div>');
                     $('#thumbnailContainer').append(row);
                     var variants = ['_01', '_02', '_1', '_10', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9'];
-                    var promises = variants.map(variant => createThumbnail(sku + variant, row));
-                    Promise.all(promises).then(() => {
-                        // ensure all thumbnails are created
-                    });
+                    displayThumbnailsInOrder(sku, variants, row);
                 }
             });
         });
 
-        function createThumbnail(sku, row) {
-            return new Promise((resolve) => {
-                let url = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/' + sku + '/w=1500,h=1500,fit=pad';
-                var img = new Image();
-                img.src = url;
-                img.alt = sku;
-                img.onload = function() {
-                    var thumbnail = $('<div class="thumbnail"></div>');
-                    thumbnail.append(img);
-                    thumbnail.append('<div class="sku">' + sku + '</div>');
-                    row.append(thumbnail);
-                    resolve();
-                };
-                img.onerror = function() {
-                    var thumbnail = $('<div class="thumbnail"><div class="sku">' + sku + '</div></div>');
-                    row.append(thumbnail);
-                    resolve();
-                };
+        function displayThumbnailsInOrder(sku, variants, row) {
+            variants.forEach(function(variant) {
+                createThumbnail(sku + variant, row);
             });
+        }
+
+        function createThumbnail(sku, row) {
+            let url = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/' + sku + '/w=1500,h=1500,fit=pad';
+            var img = new Image();
+            img.src = url;
+            img.alt = sku;
+            img.onload = function() {
+                var thumbnail = $('<div class="thumbnail"></div>');
+                thumbnail.append(img);
+                thumbnail.append('<div class="sku">' + sku + '</div>');
+                row.append(thumbnail);
+            };
+            img.onerror = function() {
+                var thumbnail = $('<div class="thumbnail"><div class="sku">' + sku + '</div></div>');
+                row.append(thumbnail);
+            };
         }
     </script>
 </body>
