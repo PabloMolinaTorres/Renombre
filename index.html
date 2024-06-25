@@ -125,28 +125,33 @@
                     var row = $('<div class="thumbnail-row"></div>');
                     $('#thumbnailContainer').append(row);
                     var variants = ['_01', '_02', '_1', '_10', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9'];
-                    variants.forEach(function(variant) {
-                        createThumbnail(sku + variant, row);
+                    var promises = variants.map(variant => createThumbnail(sku + variant, row));
+                    Promise.all(promises).then(() => {
+                        // ensure all thumbnails are created
                     });
                 }
             });
         });
 
         function createThumbnail(sku, row) {
-            let url = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/' + sku + '/w=1500,h=1500,fit=pad';
-            var img = new Image();
-            img.src = url;
-            img.alt = sku;
-            img.onload = function() {
-                var thumbnail = $('<div class="thumbnail"></div>');
-                thumbnail.append(img);
-                thumbnail.append('<div class="sku">' + sku + '</div>');
-                row.append(thumbnail);
-            };
-            img.onerror = function() {
-                var thumbnail = $('<div class="thumbnail"><div class="sku">' + sku + '</div></div>');
-                row.append(thumbnail);
-            };
+            return new Promise((resolve) => {
+                let url = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/' + sku + '/w=1500,h=1500,fit=pad';
+                var img = new Image();
+                img.src = url;
+                img.alt = sku;
+                img.onload = function() {
+                    var thumbnail = $('<div class="thumbnail"></div>');
+                    thumbnail.append(img);
+                    thumbnail.append('<div class="sku">' + sku + '</div>');
+                    row.append(thumbnail);
+                    resolve();
+                };
+                img.onerror = function() {
+                    var thumbnail = $('<div class="thumbnail"><div class="sku">' + sku + '</div></div>');
+                    row.append(thumbnail);
+                    resolve();
+                };
+            });
         }
     </script>
 </body>
