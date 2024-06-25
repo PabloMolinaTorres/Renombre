@@ -74,15 +74,13 @@
         }
         .thumbnail {
             display: inline-block;
-            width: 150px;
-            height: 150px;
-            margin: 10px;
+            width: 100px;
+            height: 100px;
+            margin: 5px;
             position: relative;
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             text-align: center;
-            line-height: 150px;
-            color: #888;
         }
         .thumbnail img {
             width: 100%;
@@ -98,7 +96,7 @@
             color: #fff;
             text-align: center;
             font-size: 12px;
-            padding: 5px;
+            padding: 2px;
         }
     </style>
 </head>
@@ -126,10 +124,10 @@
                 if (sku !== "") {
                     var row = $('<div class="thumbnail-row"></div>');
                     $('#thumbnailContainer').append(row);
-                    for (let i = 1; i <= 10; i++) {
-                        let variant = (i < 10 ? `_${i}` : `_${("0" + i).slice(-2)}`);
+                    var variants = ['_01', '_02', '_1', '_10', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9'];
+                    variants.forEach(function(variant) {
                         createThumbnail(sku + variant, row);
-                    }
+                    });
                 }
             });
         });
@@ -146,7 +144,7 @@
                 row.append(thumbnail);
             };
             img.onerror = function() {
-                var thumbnail = $('<div class="thumbnail">' + sku + '</div>');
+                var thumbnail = $('<div class="thumbnail"><div class="sku">' + sku + '</div></div>');
                 row.append(thumbnail);
             };
         }
