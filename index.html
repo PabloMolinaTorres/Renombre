@@ -11,6 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -144,7 +146,7 @@
                         $('#thumbnailContainer').append('<div class="divider"></div>');
                     }
                     $('#thumbnailContainer').append(row);
-                    var variants = ['', '_01', '_02', '_1', '_10', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9'];
+                    var variants = ['', '_1', '_10', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_01', '_02', '_03'];
                     displayThumbnailsInOrder(sku, variants, row);
                 }
             });
@@ -164,7 +166,9 @@
                 img.alt = sku;
                 img.onload = function() {
                     var thumbnail = $('<div class="thumbnail"></div>');
-                    thumbnail.append(img);
+                    var link = $('<a href="' + url + '" data-lightbox="image-gallery" data-title="' + sku + '"></a>');
+                    link.append(img);
+                    thumbnail.append(link);
                     thumbnail.append('<div class="sku">' + sku + '</div>');
                     row.append(thumbnail);
                     resolve();
