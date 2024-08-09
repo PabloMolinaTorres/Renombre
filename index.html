@@ -66,6 +66,76 @@
             letter-spacing: .075em;
             cursor: pointer;
         }
+        .rightMenu button[disabled] {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .error-list {
+            height: calc(100% - 100px);
+            padding: 20px;
+            margin: 20px;
+            border: 1px solid #eee;
+            background-color: #f9f9f9;
+            overflow-y: auto;
+        }
+        .error-list button {
+            display: block;
+            margin-bottom: 10px;
+            background-color: #ccc;
+            border: none;
+            color: white;
+            padding: 3px 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 10px;
+        }
+        .error-list button:hover {
+            background-color: #bbb;
+        }
+        .error-list button.copied {
+            background-color: #8fca00;
+        }
+        .error-list button.copied:hover {
+            background-color: #76a700;
+        }
+        .error-list div {
+            margin-bottom: 5px;
+            color: red;
+        }
+        .rightContainer {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+        .imgContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .imgContainer .imgWrapper {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            display: block;
+            overflow: hidden;
+            border: 1px solid #eeeeee;
+        }
+        .imgContainer .imgWrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .imgContainer .imgWrapper a {
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+        .imgContainer .imgWrapper a img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
         .setBar {
             background-color: #fff;
             padding: 20px;
@@ -76,33 +146,22 @@
         }
         .setBar button {
             padding: 0;
+            background-color: #8fca00;
             border: none;
             font-size: 12px;
             text-transform: uppercase;
             line-height: 30px;
             height: 30px;
             padding: 0 15px;
+            color: white;
             font-weight: 700;
             letter-spacing: .075em;
             cursor: pointer;
             border-radius: 5px;
             margin: 0;
         }
-        .setBar #descargartodo {
-            background-color: #8fca00;
-            color: white;
-        }
-        .setBar #ordenarVistas {
-            background-color: #cccccc; /* gris deshabilitado */
-            color: white;
-            cursor: not-allowed;
-        }
-        .setBar #ordenarVistas.enabled {
-            background-color: #8fca00; /* verde habilitado */
-            cursor: pointer;
-        }
         .setBar button:hover {
-            background-color: #76a700;
+            background-color: #8fca00;
             color: white;
         }
         .pais.seleccionado {
@@ -281,7 +340,7 @@
         <div class="rightContainer">
             <div class="setBar">
                 <button id="descargartodo">DESCARGAR TODO</button>
-                <button id="ordenarVistas" class="disabled" disabled>ORDENAR VISTAS</button>
+                <button id="ordenarVistas" disabled>ORDENAR VISTAS</button>
             </div>
             <div class="imgContainer"></div>
             <div id="thumbnailContainer" style="display:none;">
@@ -360,7 +419,7 @@
         });
 
         $('#buscar').click(function() {
-            $('#ordenarVistas').attr('disabled', true).removeClass('enabled').addClass('disabled');  // Deshabilitar botón de ordenar
+            $('#ordenarVistas').attr('disabled', true);  // Deshabilitar botón de ordenar
             if (viewMode === "vista") {
                 buscarPorVista();
             } else {
@@ -369,9 +428,7 @@
         });
 
         $('#ordenarVistas').click(function() {
-            if (!$(this).attr('disabled')) {
-                $('#buscar').click();
-            }
+            $('#buscar').click();
         });
 
         async function buscarPorVista() {
@@ -400,7 +457,7 @@
                 }
             });
 
-            $('#ordenarVistas').removeAttr('disabled').removeClass('disabled').addClass('enabled');  // Habilitar botón de ordenar
+            $('#ordenarVistas').removeAttr('disabled');  // Habilitar botón de ordenar
         }
 
         function buscarPorSKU() {
@@ -424,7 +481,7 @@
             });
 
             Promise.all(promises).then(() => {
-                $('#ordenarVistas').removeAttr('disabled').removeClass('disabled').addClass('enabled');  // Habilitar botón de ordenar
+                $('#ordenarVistas').removeAttr('disabled');  // Habilitar botón de ordenar
             });
         }
 
