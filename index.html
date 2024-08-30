@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Visualiza</title>
+    <title>Renombrador de Imágenes Falabella</title>
     <link rel="icon" href="https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/falabella.png" type="image/png">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
@@ -29,575 +29,184 @@
             display: flex;
             height: 100%;
             width: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        .leftMenu, .rightMenu {
-            width: 320px;
-            min-width: 320px;
-            background-color: #fff;
-            overflow-y: auto;
-            position: relative;
+        .form-container {
+            width: 80%;
+            max-width: 1000px;
+            margin-bottom: 20px;
         }
-        .leftMenu {
-            border-right: 1px solid #eeeeee;
-        }
-        .rightMenu {
-            border-left: 1px solid #eeeeee;
-        }
-        .leftMenu .intro, .rightMenu .intro {
-            font-size: 12px;
-            padding: 20px 20px 0;
-        }
-        .leftMenu textarea, .rightMenu .error-list {
-            width: calc(100% - 40px);
-            border: 1px solid #eee;
-            margin: 20px;
-            height: 400px;
-        }
-        .leftMenu button, .rightMenu button {
-            width: calc(100% - 40px);
-            border: none;
-            margin: 0 20px 20px;
-            background-color: #8fca00;
-            height: 50px;
-            line-height: 50px;
-            padding: 0;
-            border-radius: 5px;
-            color: white;
-            font-size: 12px;
-            letter-spacing: .075em;
-            cursor: pointer;
-        }
-        .rightMenu button[disabled] {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .error-list {
-            height: calc(100% - 100px);
-            padding: 20px;
-            margin: 20px;
-            border: 1px solid #eee;
-            background-color: #f9f9f9;
-            overflow-y: auto;
-        }
-        .error-list button {
-            display: block;
+        .form-group {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 10px;
-            background-color: #ccc;
-            border: none;
-            color: white;
-            padding: 3px 5px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 10px;
         }
-        .error-list button:hover {
-            background-color: #bbb;
+        .form-group input {
+            width: 48%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        .error-list button.copied {
-            background-color: #8fca00;
-        }
-        .error-list button.copied:hover {
-            background-color: #76a700;
-        }
-        .error-list div {
-            margin-bottom: 5px;
-            color: red;
-        }
-        .rightContainer {
+        .form-group input[type="text"] {
             flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background-color: #fff;
+        }
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #8fca00;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #76a700;
         }
         .imgContainer {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            margin-top: 20px;
         }
-        .imgContainer .imgWrapper {
+        .imgWrapper {
             width: 200px;
             height: 200px;
             position: relative;
             display: block;
             overflow: hidden;
             border: 1px solid #eeeeee;
+            text-align: center;
         }
-        .imgContainer .imgWrapper img {
+        .imgWrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .imgContainer .imgWrapper a {
-            display: block;
-            height: 100%;
-            width: 100%;
-        }
-        .imgContainer .imgWrapper a img {
-            height: 100%;
-            width: 100%;
-            object-fit: cover;
-        }
-        .setBar {
-            background-color: #fff;
-            padding: 20px;
-            width: 100%;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        .setBar button {
-            padding: 0;
-            background-color: #8fca00;
-            border: none;
-            font-size: 12px;
-            text-transform: uppercase;
-            line-height: 30px;
-            height: 30px;
-            padding: 0 15px;
-            color: white;
-            font-weight: 700;
-            letter-spacing: .075em;
-            cursor: pointer;
-            border-radius: 5px;
-            margin: 0;
-        }
-        .setBar button:hover {
-            background-color: #8fca00;
-            color: white;
-        }
-        .pais.seleccionado {
-            font-weight: 700;
-            text-decoration: underline;
-            color: #333;
-        }
-        .pais {
-            display: inline-block;
-            padding-right: 10px;
-            cursor: pointer;
-            color: #bbbbbb;
-        }
-        .error {
-            color: red;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-        .icon-switch {
-            display: flex;
-            align-items: center;
-            margin: 20px;
-        }
-        .icon-switch img {
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .icon-switch img.inactive {
-            filter: grayscale(100%);
-        }
-        .skus-container {
-            padding: 20px;
-        }
-        .thumbnail-row {
-            display: flex;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .thumbnail {
-            display: inline-block;
-            width: 120px;
-            height: 140px;
-            margin: 5px;
-            position: relative;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            text-align: center;
-            overflow: hidden;
-        }
-        .thumbnail img {
-            width: 100%;
-            height: 100px;
-            object-fit: cover;
-            cursor: zoom-in;
-        }
-        .zoom {
+        .download-icon {
             position: absolute;
-            display: none;
-            width: 500px;
-            height: 500px;
-            border: 2px solid #8fca00;
-            background-repeat: no-repeat;
-            z-index: 10;
-        }
-        .thumbnail .sku {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.5);
-            color: #fff;
-            text-align: center;
-            font-size: 12px;
-            padding: 2px;
-        }
-        .thumbnail .no-image {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100px;
-            background-color: #e0e0e0;
-            color: #888;
-            font-size: 14px;
-            text-align: center;
-        }
-        .divider {
-            width: 100%;
-            height: 1px;
-            background-color: #ccc;
-            margin: 20px 0;
-        }
-        .toggle-switch {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: calc(100% - 40px);
-        }
-        .toggle-switch span {
-            font-size: 12px;
-            font-weight: 700;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
+            top: 0px;
+            right: 0px;
+            width: 24px;
             height: 24px;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
+            opacity: 0.8;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
+            background-image: url('https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/descarga.png');
+            background-size: cover;
         }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+        .download-icon:hover {
+            opacity: 1;
         }
-        input:checked + .slider {
+        .button-group {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .button-group button {
+            padding: 10px 20px;
             background-color: #8fca00;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
         }
-        input:checked + .slider:before {
-            transform: translateX(26px);
+        .button-group button:hover {
+            background-color: #76a700;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="leftMenu">
-            <div class="icon-switch">
-                <img src="https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/falabella.png" id="falabellaIcon" class="active">
-                <img src="https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/sodimac-bn.png" id="sodimacIcon" class="inactive">
+        <div class="form-container">
+            <div class="form-group">
+                <input type="text" placeholder="Ingrese SKU" id="skuInput">
+                <input type="text" placeholder="Nombre para renombrar la imagen" id="renameInput">
             </div>
-            <div class="intro paises" id="paisesContainer">
-                <div>Descargar imágenes desde:</div><br>
-                <div class="pais seleccionado" data-pais="CL">Chile</div>
-                <div class="pais" data-pais="CO">Colombia</div>
-                <div class="pais" data-pais="PE">Perú</div>
-            </div>
-            <div class="skus-container">
-                <textarea name="skus" id="skus" cols="30" rows="15" placeholder="Ingresá los SKUs, uno debajo de otro sin comas"></textarea>
-                <button id="buscar">BUSCAR</button>
-            </div>
-            <div class="toggle-switch">
-                <span>Vista</span>
-                <label class="switch">
-                    <input type="checkbox" id="viewToggle">
-                    <span class="slider"></span>
-                </label>
-                <span>SKU</span>
-            </div>
-            <div class="error" id="error"></div>
-        </div>
-        <div class="rightContainer">
-            <div class="setBar">
-                <button id="descargartodo">DESCARGAR TODO</button>
-                <button id="ordenarVistas" disabled>ORDENAR VISTAS</button>
-            </div>
-            <div class="imgContainer"></div>
-            <div id="thumbnailContainer" style="display:none;">
-                <!-- Thumbnails will be displayed here -->
+            <div class="form-group">
+                <button id="addSKU">Agregar SKU</button>
             </div>
         </div>
-        <div class="rightMenu">
-            <div class="intro">No tiene foto:</div>
-            <div class="error-list" id="errorList">
-                <button id="copyErrors">Copiar</button>
-                <!-- Errores 404 aparecerán aquí -->
-            </div>
+        <div class="imgContainer" id="imgContainer">
+            <!-- Imágenes aparecerán aquí -->
+        </div>
+        <div class="button-group">
+            <button id="downloadAll">Descargar Todo</button>
         </div>
     </div>
+
     <script>
-        var pais = "CL";  // Por defecto, Chile
-        var useFalabella = true;  // Estado inicial: usar Falabella
-        var viewMode = "vista";  // Estado inicial: por vista
+        var skuList = [];
 
-        const paisesFalabella = [
-            { nombre: 'Chile', codigo: 'CL' },
-            { nombre: 'Colombia', codigo: 'CO' },
-            { nombre: 'Perú', codigo: 'PE' }
-        ];
-
-        const paisesSodimac = [
-            { nombre: 'Chile', codigo: 'CL' },
-            { nombre: 'Argentina', codigo: 'AR' },
-            { nombre: 'Colombia', codigo: 'CO' },
-            { nombre: 'Perú', codigo: 'PE' },
-            { nombre: 'Brasil', codigo: 'BR' },
-            { nombre: 'México', codigo: 'MX' },
-            { nombre: 'Uruguay', codigo: 'UY' }
-        ];
-
-        function actualizarPaises() {
-            const contenedor = $('#paisesContainer');
-            contenedor.empty();
-            contenedor.append('<div>Descargar imágenes desde:</div><br>');
-            const paises = useFalabella ? paisesFalabella : paisesSodimac;
-            paises.forEach(p => {
-                const div = $('<div>').addClass('pais').attr('data-pais', p.codigo).text(p.nombre);
-                if (p.codigo === pais) div.addClass('seleccionado');
-                contenedor.append(div);
-            });
-            $('.pais').click(function() {
-                pais = $(this).data('pais');
-                $('.pais').removeClass('seleccionado');
-                $(this).addClass('seleccionado');
-            });
-        }
-
-        $('#falabellaIcon').click(function() {
-            useFalabella = true;
-            $('#falabellaIcon').removeClass('inactive').attr('src', 'https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/falabella.png');
-            $('#sodimacIcon').addClass('inactive').attr('src', 'https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/sodimac-bn.png');
-            actualizarPaises();
-        });
-
-        $('#sodimacIcon').click(function() {
-            useFalabella = false;
-            $('#sodimacIcon').removeClass('inactive').attr('src', 'https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/sodimac.png');
-            $('#falabellaIcon').addClass('inactive').attr('src', 'https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/falabella-bn.png');
-            actualizarPaises();
-        });
-
-        $('#viewToggle').change(function() {
-            viewMode = $(this).is(':checked') ? 'sku' : 'vista';
-            if (viewMode === 'vista') {
-                $('.imgContainer').show();
-                $('#thumbnailContainer').hide();
-            } else {
-                $('.imgContainer').hide();
-                $('#thumbnailContainer').show();
-            }
-        });
-
-        $('#buscar').click(function() {
-            $('#ordenarVistas').attr('disabled', true);  // Deshabilitar botón de ordenar
-            if (viewMode === "vista") {
-                buscarPorVista();
-            } else {
-                buscarPorSKU();
-            }
-        });
-
-        $('#ordenarVistas').click(function() {
-            $('#buscar').click();
-        });
-
-        async function buscarPorVista() {
-            $('.imgContainer').empty();
-            $('#error').text('');
-            $('#errorList').empty(); // Limpiar lista de errores
-            $('#errorList').append('<button id="copyErrors">Copiar</button>');
-            var skus = $('#skus').val().split('\n');
-            var promises = [];
-
-            for (let sku of skus) {
-                sku = sku.trim();
-                if (sku !== "") {
-                    promises.push(loadImage(sku));
-                }
-            }
-
-            const images = await Promise.all(promises);
-
-            images.forEach(image => {
-                if (image && !image.error) {
-                    $('.imgContainer').append(image.element);
-                }
-                if (image && image.error) {
-                    $('#errorList').append('<div>' + image.sku + '</div>');
-                }
-            });
-
-            $('#ordenarVistas').removeAttr('disabled');  // Habilitar botón de ordenar
-        }
-
-        function buscarPorSKU() {
-            $('#thumbnailContainer').empty();
-            var skus = $('#skus').val().split('\n');
-            var promises = [];
-
-            skus.forEach(function(sku, index) {
-                sku = sku.trim();
-                if (sku !== "") {
-                    var row = $('<div class="thumbnail-row"></div>');
-                    if (index > 0) {
-                        $('#thumbnailContainer').append('<div class="divider"></div>');
-                    }
-                    $('#thumbnailContainer').append(row);
-                    var variants = useFalabella 
-                        ? ['_01', '_02', '_03', '_1', '_10', '_11', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99']
-                        : ['_1', '_01', '_02', '_03', '_04', '_05', '_06', '_07', '_08', '_09', '_10', '_11', '_12', '_13', '_14', '_15', '_16', '_17', '_18', '_19', '_20', '_21', '_22', '_23', '_24', '_25', '_26', '_27', '_28', '_29', '_30', '_31', '_32', '_33', '_34', '_35', '_EFI', '_SEC'];
-                    promises.push(displayThumbnailsInOrder(sku, variants, row));
-                }
-            });
-
-            Promise.all(promises).then(() => {
-                $('#ordenarVistas').removeAttr('disabled');  // Habilitar botón de ordenar
-            });
-        }
-
-        async function displayThumbnailsInOrder(sku, variants, row) {
-            const promises = variants.map(variant => createThumbnail(sku + variant, row));
-            await Promise.all(promises);
-        }
-
-        function createThumbnail(sku, row) {
-            return new Promise((resolve) => {
-                var baseUrl = useFalabella ? 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabella' : 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/sodimac';
-                let thumbnailUrl = `${baseUrl}${pais}/${sku}/w=400,h=400,fit=pad`;
-                let originalUrl = `${baseUrl}${pais}/${sku}/w=1500,h=1500,fit=pad`;
-                var img = new Image();
-                img.src = thumbnailUrl;
-                img.alt = sku;
-                img.onload = function() {
-                    var thumbnail = $('<div class="thumbnail"></div>');
-                    var link = $('<a href="' + originalUrl + '" data-lightbox="image-gallery" data-title="' + sku + '"></a>');
-                    link.append(img);
-                    thumbnail.append(link);
-                    thumbnail.append('<div class="sku">' + sku + '</div>');
-                    thumbnail.mouseenter(function() {
-                        var zoom = $('<div class="zoom"></div>');
-                        zoom.css({
-                            'background-image': 'url(' + originalUrl + ')',
-                            'background-size': '500px 500px'
-                        });
-                        $('body').append(zoom);
-                        zoom.fadeIn(200);
-                        thumbnail.on('mousemove', function(e) {
-                            var offset = thumbnail.offset();
-                            var posX = e.pageX - offset.left;
-                            var posY = e.pageY - offset.top;
-                            zoom.css({
-                                'left': e.pageX + 10,
-                                'top': e.pageY + 10,
-                                'background-position': '-' + (posX * 1 - zoom.width() / 2) + 'px -' + (posY * 1 - zoom.height() / 2) + 'px'
-                            });
-                        });
-                    });
-                    thumbnail.mouseleave(function() {
-                        var zoom = $('body').find('.zoom');
-                        zoom.fadeOut(200, function() {
-                            zoom.remove();
-                        });
-                    });
-                    row.append(thumbnail);
-                    resolve();
-                };
-                img.onerror = function() {
-                    resolve(); // Resolviendo la promesa sin añadir la miniatura "No disponible"
-                };
-            });
-        }
-
-        function loadImage(sku) {
+        function loadImage(sku, customName) {
             return new Promise(function(resolve, reject) {
-                var baseUrl = useFalabella ? 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabella' : 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/sodimac';
-                var primaryUrl = `${baseUrl}${pais}/${sku}/public`;
-                var downloadUrl = `${baseUrl}${pais}/${sku}/w=1500,h=1500`;
-                var alternateUrl = `${baseUrl}${pais}/inpage_media/${sku}/public`;
-
-                console.log("Loading image for SKU: " + sku + " from URL: " + primaryUrl);
+                var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
+                var imgUrl = `${baseUrl}${sku}?w=1500,h=1500`;
                 var img = new Image();
-                img.src = primaryUrl;
-                img.alt = sku;
-                img.setAttribute('data-download-src', downloadUrl);
+                img.src = imgUrl;
+                img.alt = customName;
 
                 img.onload = function() {
-                    var wrapper = $('<div class="imgWrapper"><a href="' + primaryUrl + '" target="_blank"></a></div>');
+                    var wrapper = $('<div class="imgWrapper"><a href="' + imgUrl + '" target="_blank"></a></div>');
                     wrapper.find('a').append(img);
-                    resolve({ element: wrapper, sku: sku });
+
+                    var downloadIcon = $('<div class="download-icon"></div>');
+                    downloadIcon.click(function() {
+                        downloadImage(imgUrl, customName);
+                    });
+
+                    wrapper.append(downloadIcon);
+                    resolve(wrapper);
                 };
 
                 img.onerror = function() {
-                    if (sku.includes('-')) {
-                        console.log("Trying alternate URL for SKU: " + sku);
-                        img.src = alternateUrl;
-                        img.setAttribute('data-download-src', alternateUrl);
-                        img.onload = function() {
-                            var wrapper = $('<div class="imgWrapper"><a href="' + alternateUrl + '" target="_blank"></a></div>');
-                            wrapper.find('a').append(img);
-                            resolve({ element: wrapper, sku: sku });
-                        };
-                        img.onerror = function() {
-                            console.log("Error loading image for SKU: " + sku);
-                            resolve({ error: true, sku: sku });
-                        };
-                    } else {
-                        console.log("Error loading image for SKU: " + sku);
-                        resolve({ error: true, sku: sku });
-                    }
+                    resolve(null); // Resolviendo la promesa sin añadir la miniatura "No disponible"
                 };
             });
         }
 
-        $('#descargartodo').click(function() {
+        function downloadImage(url, customName) {
+            JSZipUtils.getBinaryContent(url, function (err, data) {
+                if (err) {
+                    throw err;
+                }
+                saveAs(new Blob([data], { type: 'image/jpeg' }), customName + ".jpg");
+            });
+        }
+
+        $('#addSKU').click(function() {
+            var sku = $('#skuInput').val().trim();
+            var customName = $('#renameInput').val().trim();
+
+            if (sku && customName) {
+                skuList.push({ sku: sku, customName: customName });
+                loadImage(sku, customName).then(function(imageElement) {
+                    if (imageElement) {
+                        $('#imgContainer').append(imageElement);
+                    } else {
+                        alert('Imagen no disponible para SKU: ' + sku);
+                    }
+                });
+                $('#skuInput').val('');
+                $('#renameInput').val('');
+            } else {
+                alert('Por favor, complete ambos campos.');
+            }
+        });
+
+        $('#downloadAll').click(function() {
             var zip = new JSZip();
             var count = 0;
             var zipFilename = getFormattedDate() + ".zip";
             var urls = [];
             var skuNames = [];
-            if (viewMode === "vista") {
-                $(".imgWrapper img").each(function() {
-                    urls.push($(this).attr('data-download-src'));
-                    skuNames.push($(this).attr('alt'));
-                });
-            } else {
-                $(".thumbnail img").each(function() {
-                    var originalUrl = $(this).parent().attr('href');
-                    urls.push(originalUrl);
-                    skuNames.push($(this).attr('alt'));
-                });
-            }
+
+            skuList.forEach(function(item) {
+                var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
+                var imgUrl = `${baseUrl}${item.sku}?w=1500,h=1500`;
+                urls.push(imgUrl);
+                skuNames.push(item.customName);
+            });
 
             urls.forEach(function(url, index) {
                 var filename = skuNames[index] + ".jpg";
@@ -622,26 +231,8 @@
             var month = String(date.getMonth() + 1).padStart(2, '0');
             var hours = String(date.getHours()).padStart(2, '0');
             var minutes = String(date.getMinutes()).padStart(2, '0');
-            return day + '/' + month + '_' + hours + minutes;
+            return day + '-' + month + '_' + hours + minutes;
         }
-
-        $(document).on('click', '#copyErrors', function() {
-            var errors = [];
-            $('#errorList div').each(function() {
-                errors.push($(this).text());
-            });
-            var tempInput = $('<textarea>');
-            $('body').append(tempInput);
-            tempInput.val(errors.join('\n')).select();
-            document.execCommand('copy');
-            tempInput.remove();
-            $(this).text('Copiado').addClass('copied');
-            setTimeout(function() {
-                $('#copyErrors').text('Copiar').removeClass('copied');
-            }, 2000);
-        });
-
-        actualizarPaises();
     </script>
 </body>
 </html>
