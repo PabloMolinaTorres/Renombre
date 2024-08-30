@@ -29,46 +29,55 @@
             display: flex;
             height: 100%;
             width: 100%;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
-        .form-container {
-            width: 80%;
-            max-width: 1000px;
-            margin-bottom: 20px;
+        .leftMenu {
+            width: 320px;
+            min-width: 320px;
+            background-color: #fff;
+            border-right: 1px solid #eeeeee;
+            padding: 20px;
         }
-        .form-group {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        .form-group input {
-            width: 48%;
+        .leftMenu textarea {
+            width: calc(100% - 40px);
+            margin: 20px 0;
             padding: 10px;
+            height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            resize: none;
+        }
+        .leftMenu input[type="text"] {
+            width: calc(100% - 40px);
+            padding: 10px;
+            margin: 10px 0;
             font-size: 14px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        .form-group input[type="text"] {
-            flex-grow: 1;
-        }
-        .form-group button {
-            padding: 10px 20px;
-            background-color: #8fca00;
-            color: white;
+        .leftMenu button {
+            width: calc(100% - 40px);
             border: none;
-            border-radius: 4px;
+            margin: 20px 0;
+            background-color: #8fca00;
+            height: 50px;
+            line-height: 50px;
+            border-radius: 5px;
+            color: white;
+            font-size: 12px;
             cursor: pointer;
+            text-transform: uppercase;
         }
-        .form-group button:hover {
-            background-color: #76a700;
+        .rightContainer {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
         }
         .imgContainer {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-top: 20px;
         }
         .imgWrapper {
             width: 200px;
@@ -98,9 +107,20 @@
         .download-icon:hover {
             opacity: 1;
         }
-        .button-group {
-            margin-top: 20px;
+        .sku {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
             text-align: center;
+            font-size: 12px;
+            padding: 2px;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
         }
         .button-group button {
             padding: 10px 20px;
@@ -110,6 +130,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            text-transform: uppercase;
         }
         .button-group button:hover {
             background-color: #76a700;
@@ -118,20 +139,18 @@
 </head>
 <body>
     <div class="container">
-        <div class="form-container">
-            <div class="form-group">
-                <input type="text" placeholder="Ingrese SKU" id="skuInput">
-                <input type="text" placeholder="Nombre para renombrar la imagen" id="renameInput">
-            </div>
-            <div class="form-group">
-                <button id="addSKU">Agregar SKU</button>
-            </div>
+        <div class="leftMenu">
+            <textarea id="skuInput" placeholder="Ingrese SKUs, uno por línea"></textarea>
+            <input type="text" id="renameInput" placeholder="Nombre para renombrar las imágenes">
+            <button id="buscar">Buscar y Renombrar</button>
         </div>
-        <div class="imgContainer" id="imgContainer">
-            <!-- Imágenes aparecerán aquí -->
-        </div>
-        <div class="button-group">
-            <button id="downloadAll">Descargar Todo</button>
+        <div class="rightContainer">
+            <div class="imgContainer" id="imgContainer">
+                <!-- Imágenes aparecerán aquí -->
+            </div>
+            <div class="button-group">
+                <button id="downloadAll">Descargar Todo</button>
+            </div>
         </div>
     </div>
 
@@ -156,6 +175,7 @@
                     });
 
                     wrapper.append(downloadIcon);
+                    wrapper.append('<div class="sku">' + sku + '</div>');
                     resolve(wrapper);
                 };
 
@@ -174,20 +194,26 @@
             });
         }
 
-        $('#addSKU').click(function() {
-            var sku = $('#skuInput').val().trim();
+        $('#buscar').click(function() {
+            $('#imgContainer').empty();
+            skuList = [];  // Resetear la lista
+            var skus = $('#skuInput').val().trim().split('\n');
             var customName = $('#renameInput').val().trim();
 
-            if (sku && customName) {
-                skuList.push({ sku: sku, customName: customName });
-                loadImage(sku, customName).then(function(imageElement) {
-                    if (imageElement) {
-                        $('#imgContainer').append(imageElement);
-                    } else {
-                        alert('Imagen no disponible para SKU: ' + sku);
+            if (skus.length > 0 && customName) {
+                skus.forEach(function(sku) {
+                    sku = sku.trim();
+                    if (sku) {
+                        skuList.push({ sku: sku, customName: customName + "_" + sku });
+                        loadImage(sku, customName + "_" + sku).then(function(imageElement) {
+                            if (imageElement) {
+                                $('#imgContainer').append(imageElement);
+                            } else {
+                                alert('Imagen no disponible para SKU: ' + sku);
+                            }
+                        });
                     }
                 });
-                $('#skuInput').val('');
                 $('#renameInput').val('');
             } else {
                 alert('Por favor, complete ambos campos.');
