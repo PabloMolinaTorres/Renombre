@@ -30,14 +30,15 @@
             height: 100%;
             width: 100%;
         }
-        .leftMenu {
-            width: 320px;
-            min-width: 320px;
-            background-color: #fff;
-            border-right: 1px solid #eeeeee;
+        .leftContainer, .rightContainer {
+            width: 50%;
             padding: 20px;
+            overflow-y: auto;
         }
-        .leftMenu textarea {
+        .leftContainer {
+            border-right: 1px solid #eeeeee;
+        }
+        textarea {
             width: calc(100% - 40px);
             margin: 20px 0;
             padding: 10px;
@@ -48,15 +49,7 @@
             font-size: 14px;
             resize: none;
         }
-        .leftMenu input[type="text"] {
-            width: calc(100% - 40px);
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .leftMenu button {
+        button {
             width: calc(100% - 40px);
             border: none;
             margin: 20px 0;
@@ -68,11 +61,6 @@
             font-size: 12px;
             cursor: pointer;
             text-transform: uppercase;
-        }
-        .rightContainer {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
         }
         .imgContainer {
             display: flex;
@@ -93,20 +81,6 @@
             height: 100%;
             object-fit: cover;
         }
-        .download-icon {
-            position: absolute;
-            top: 0px;
-            right: 0px;
-            width: 24px;
-            height: 24px;
-            opacity: 0.8;
-            cursor: pointer;
-            background-image: url('https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/descarga.png');
-            background-size: cover;
-        }
-        .download-icon:hover {
-            opacity: 1;
-        }
         .sku {
             position: absolute;
             bottom: 0;
@@ -118,63 +92,39 @@
             font-size: 12px;
             padding: 2px;
         }
-        .button-group {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .button-group button {
-            padding: 10px 20px;
-            background-color: #8fca00;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            text-transform: uppercase;
-        }
-        .button-group button:hover {
-            background-color: #76a700;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="leftMenu">
-            <textarea id="skuInput" placeholder="Ingrese SKUs, uno por línea"></textarea>
-            <input type="text" id="renameInput" placeholder="Nombre para renombrar las imágenes">
-            <button id="buscar">Buscar y Renombrar</button>
-        </div>
-        <div class="rightContainer">
+        <div class="leftContainer">
+            <h3>Buscar Imágenes</h3>
+            <textarea id="skuInputLeft" placeholder="Ingrese SKUs, uno por línea"></textarea>
+            <button id="buscar">Buscar</button>
             <div class="imgContainer" id="imgContainer">
                 <!-- Imágenes aparecerán aquí -->
             </div>
-            <div class="button-group">
-                <button id="downloadAll">Descargar Todo</button>
-            </div>
+        </div>
+        <div class="rightContainer">
+            <h3>Renombrar y Descargar</h3>
+            <textarea id="skuInputRight" placeholder="Ingrese los nombres para renombrar, uno por línea"></textarea>
+            <button id="downloadAll">Descargar Todo</button>
         </div>
     </div>
 
     <script>
         var skuList = [];
 
-        function loadImage(sku, customName) {
+        function loadImage(sku) {
             return new Promise(function(resolve, reject) {
                 var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
-                var imgUrl = `${baseUrl}${sku}?w=1500,h=1500`;
+                var imgUrl = `${baseUrl}${sku}/w=1004,h=1500,fit=cover`;
                 var img = new Image();
                 img.src = imgUrl;
-                img.alt = customName;
+                img.alt = sku;
 
                 img.onload = function() {
                     var wrapper = $('<div class="imgWrapper"><a href="' + imgUrl + '" target="_blank"></a></div>');
                     wrapper.find('a').append(img);
-
-                    var downloadIcon = $('<div class="download-icon"></div>');
-                    downloadIcon.click(function() {
-                        downloadImage(imgUrl, customName);
-                    });
-
-                    wrapper.append(downloadIcon);
                     wrapper.append('<div class="sku">' + sku + '</div>');
                     resolve(wrapper);
                 };
@@ -185,27 +135,17 @@
             });
         }
 
-        function downloadImage(url, customName) {
-            JSZipUtils.getBinaryContent(url, function (err, data) {
-                if (err) {
-                    throw err;
-                }
-                saveAs(new Blob([data], { type: 'image/jpeg' }), customName + ".jpg");
-            });
-        }
-
         $('#buscar').click(function() {
             $('#imgContainer').empty();
             skuList = [];  // Resetear la lista
-            var skus = $('#skuInput').val().trim().split('\n');
-            var customName = $('#renameInput').val().trim();
+            var skus = $('#skuInputLeft').val().trim().split('\n');
 
-            if (skus.length > 0 && customName) {
+            if (skus.length > 0) {
                 skus.forEach(function(sku) {
                     sku = sku.trim();
                     if (sku) {
-                        skuList.push({ sku: sku, customName: customName + "_" + sku });
-                        loadImage(sku, customName + "_" + sku).then(function(imageElement) {
+                        skuList.push(sku);
+                        loadImage(sku).then(function(imageElement) {
                             if (imageElement) {
                                 $('#imgContainer').append(imageElement);
                             } else {
@@ -214,28 +154,34 @@
                         });
                     }
                 });
-                $('#renameInput').val('');
             } else {
-                alert('Por favor, complete ambos campos.');
+                alert('Por favor, ingrese SKUs.');
             }
         });
 
         $('#downloadAll').click(function() {
+            var renameSkus = $('#skuInputRight').val().trim().split('\n');
+
+            if (renameSkus.length !== skuList.length) {
+                alert('La cantidad de SKUs en el lado izquierdo y derecho debe coincidir.');
+                return;
+            }
+
             var zip = new JSZip();
             var count = 0;
             var zipFilename = getFormattedDate() + ".zip";
             var urls = [];
-            var skuNames = [];
+            var filenames = [];
 
-            skuList.forEach(function(item) {
+            skuList.forEach(function(sku, index) {
                 var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
-                var imgUrl = `${baseUrl}${item.sku}?w=1500,h=1500`;
+                var imgUrl = `${baseUrl}${sku}/w=1004,h=1500,fit=cover`;
                 urls.push(imgUrl);
-                skuNames.push(item.customName);
+                filenames.push(renameSkus[index]);
             });
 
             urls.forEach(function(url, index) {
-                var filename = skuNames[index] + ".jpg";
+                var filename = filenames[index] + ".jpg";
                 JSZipUtils.getBinaryContent(url, function (err, data) {
                     if (err) {
                         throw err;
