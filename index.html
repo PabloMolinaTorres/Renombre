@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Visualiza - Falabella</title>
+    <title>Visualiza</title>
     <link rel="icon" href="https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/falabella.png" type="image/png">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
@@ -10,6 +10,9 @@
     <meta http-equiv="Expires" content="0">
     <meta http-equiv="Last-Modified" content="0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js?v=1.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js?v=1.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js?v=1.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js?v=1.0"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -252,7 +255,7 @@
 
             skuList.forEach((sku, index) => {
                 const imgUrl = `https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/${sku}/w=1004,h=1500,fit=cover`;
-                downloadImage(imgUrl, renameSkus[index] + '.jpg');
+                downloadImage(imgUrl, renameSkus[index].trim() + ".jpg");
             });
         });
     </script>
