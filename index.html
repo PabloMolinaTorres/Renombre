@@ -42,7 +42,7 @@
             width: calc(100% - 40px);
             margin: 20px 0;
             padding: 10px;
-            height: 200px;
+            height: 150px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-family: 'Lato', sans-serif;
@@ -92,6 +92,20 @@
             font-size: 10px;
             padding: 2px;
         }
+        .download-icon {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            opacity: 0.8;
+            cursor: pointer;
+            background-image: url('https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/descarga.png');
+            background-size: cover;
+        }
+        .download-icon:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -113,7 +127,7 @@
 
     <script>
         var skuList = [];
-        var mode = "individual"; // Por defecto, modo individual
+        var mode = "vista"; // Por defecto, modo vista
 
         function loadImage(sku, suffix = "") {
             return new Promise(function(resolve, reject) {
@@ -145,7 +159,7 @@
                 skus.forEach(function(sku) {
                     sku = sku.trim();
                     if (sku) {
-                        if (mode === "individual") {
+                        if (mode === "vista") {
                             skuList.push(sku);
                             loadImage(sku).then(function(imageElement) {
                                 if (imageElement) {
@@ -175,7 +189,7 @@
         $('#downloadAll').click(function() {
             var renameSkus = $('#skuInputRight').val().trim().split('\n');
 
-            if (mode === "individual" && renameSkus.length !== skuList.length) {
+            if (mode === "vista" && renameSkus.length !== skuList.length) {
                 alert('La cantidad de SKUs en el lado izquierdo y derecho debe coincidir.');
                 return;
             } else if (mode === "sku" && renameSkus.length !== 1) {
@@ -189,7 +203,7 @@
             var urls = [];
             var filenames = [];
 
-            if (mode === "individual") {
+            if (mode === "vista") {
                 skuList.forEach(function(sku, index) {
                     var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                     var imgUrl = `${baseUrl}${sku}/w=1004,h=1500,fit=cover`;
@@ -230,13 +244,6 @@
             var hours = String(date.getHours()).padStart(2, '0');
             var minutes = String(date.getMinutes()).padStart(2, '0');
             return day + '-' + month + '_' + hours + minutes;
-        }
-
-        // Modo individual y SKU
-        function toggleMode(newMode) {
-            mode = newMode;
-            $('#imgContainer').empty();
-            skuList = [];
         }
     </script>
 </body>
