@@ -179,14 +179,12 @@
             <h3>Renombrar y Descargar</h3>
             <textarea id="skuInputRight" placeholder="Ingrese los nombres para renombrar, uno por línea"></textarea>
             <button id="downloadAll">Descargar Todo</button>
-            <div id="countInfoRight"></div>
         </div>
     </div>
 
     <script>
         var skuList = [];
         var mode = "vista"; // Por defecto, modo vista
-        var validUrls = [];
 
         function loadImage(sku, suffix = "") {
             return new Promise(function(resolve, reject) {
@@ -200,7 +198,7 @@
                     var wrapper = $('<div class="imgWrapper"><a href="' + imgUrl + '" target="_blank"></a></div>');
                     wrapper.find('a').append(img);
                     wrapper.append('<div class="sku">' + sku + suffix + '</div>');
-                    resolve({ element: wrapper, url: imgUrl, originalSku: sku });
+                    resolve(wrapper);
                 };
 
                 img.onerror = function() {
@@ -218,38 +216,33 @@
         $('#buscar').click(function() {
             $('#imgContainer').empty();
             skuList = [];  // Resetear la lista
-            validUrls = []; // Resetear las URLs válidas
             var skus = $('#skuInputLeft').val().trim().split('\n');
-            var suffixes = ['_01', '_10', '_11', '_02', '_03', '_04', '_1', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
 
             if (skus.length > 0) {
-                var promises = [];
                 skus.forEach(function(sku) {
                     sku = sku.trim();
                     if (sku) {
                         if (mode === "vista") {
                             skuList.push(sku);
-                            promises.push(loadImage(sku).then(function(result) {
-                                if (result) {
-                                    $('#imgContainer').append(result.element);
-                                    validUrls.push(result);
+                            loadImage(sku).then(function(imageElement) {
+                                if (imageElement) {
+                                    $('#imgContainer').append(imageElement);
+                                } else {
+                                    alert('Imagen no disponible para SKU: ' + sku);
                                 }
-                            }));
+                            });
                         } else if (mode === "sku") {
+                            var suffixes = ['_01', '_10', '_11', '_02', '_03', '_04', '_1', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
                             suffixes.forEach(function(suffix) {
-                                promises.push(loadImage(sku, suffix).then(function(result) {
-                                    if (result) {
-                                        $('#imgContainer').append(result.element);
-                                        validUrls.push(result);
+                                skuList.push(sku + suffix);
+                                loadImage(sku, suffix).then(function(imageElement) {
+                                    if (imageElement) {
+                                        $('#imgContainer').append(imageElement);
                                     }
-                                }));
+                                });
                             });
                         }
                     }
-                });
-
-                Promise.all(promises).then(() => {
-                    $('#countInfoRight').text(`${skus.length} SKUs`);
                 });
             } else {
                 alert('Por favor, ingrese SKUs.');
@@ -259,7 +252,7 @@
         $('#downloadAll').click(function() {
             var renameSkus = $('#skuInputRight').val().trim().split('\n');
 
-            if (renameSkus.length !== skuList.length) {
+            if (renameSkus.length === 0 || renameSkus.length !== $('#skuInputLeft').val().trim().split('\n').length) {
                 alert('La cantidad de SKUs en el lado izquierdo y derecho debe coincidir.');
                 return;
             }
@@ -270,12 +263,16 @@
             var urls = [];
             var filenames = [];
 
-            validUrls.forEach(function(item) {
-                var originalSku = item.originalSku;
-                var newSku = renameSkus[skuList.indexOf(originalSku)];
-                var newFilename = item.url.replace(originalSku, newSku);
-                urls.push(item.url);
-                filenames.push(newFilename);
+            skuList.forEach(function(sku, index) {
+                var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
+                var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
+                urls.push(imgUrl);
+                var correspondingSKU = $('#skuInputLeft').val().trim().split('\n')[index];
+                var renameSKU = renameSkus.find(name => name.includes(correspondingSKU));
+                if (renameSKU) {
+                    var finalName = renameSKU.replace(correspondingSKU, renameSkus[index]);
+                    filenames.push(finalName);
+                }
             });
 
             urls.forEach(function(url, index) {
