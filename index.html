@@ -14,146 +14,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js?v=1.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js?v=1.0"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Lato', sans-serif;
-        }
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            color: #333;
-            background-color: #fff;
-        }
-        .container {
+        /* El código CSS existente aquí */
+
+        .country-selector {
             display: flex;
-            height: 100%;
-            width: 100%;
+            justify-content: center;
+            margin: 10px 0;
         }
-        .leftContainer, .rightContainer {
-            width: 50%;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        .leftContainer {
-            border-right: 1px solid #eeeeee;
-        }
-        textarea {
-            width: calc(100% - 40px);
-            margin: 20px 0;
-            padding: 10px;
-            height: 150px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: 'Lato', sans-serif;
-            font-size: 14px;
-            resize: none;
-        }
-        button {
-            width: calc(100% - 40px);
-            border: none;
-            margin: 20px 0;
-            background-color: #8fca00;
-            height: 50px;
-            line-height: 50px;
-            border-radius: 5px;
-            color: white;
-            font-size: 12px;
+        .country-flag {
+            width: 32px;
+            height: 32px;
+            margin: 0 5px;
             cursor: pointer;
-            text-transform: uppercase;
+            filter: grayscale(100%);
+            transition: filter 0.3s;
         }
-        .imgContainer {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .imgWrapper {
-            width: 120px;
-            height: 120px;
-            position: relative;
-            display: block;
-            overflow: hidden;
-            border: 1px solid #eeeeee;
-            text-align: center;
-        }
-        .imgWrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .sku {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.5);
-            color: #fff;
-            text-align: center;
-            font-size: 10px;
-            padding: 2px;
-        }
-        .download-icon {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 20px;
-            height: 20px;
-            opacity: 0.8;
-            cursor: pointer;
-            background-image: url('https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/descarga.png');
-            background-size: cover;
-        }
-        .download-icon:hover {
-            opacity: 1;
-        }
-        .switch-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .switch-container span {
-            font-size: 14px;
-            font-weight: 700;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #8fca00;
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
+        .country-flag.active {
+            filter: grayscale(0%);
         }
     </style>
 </head>
@@ -168,6 +45,11 @@
                     <span class="slider"></span>
                 </label>
                 <span>SKU</span>
+            </div>
+            <div class="country-selector">
+                <img src="https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/chile.png" id="flagCL" class="country-flag" alt="Chile">
+                <img src="https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/peru.png" id="flagPE" class="country-flag" alt="Perú">
+                <img src="https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/colombia.png" id="flagCO" class="country-flag" alt="Colombia">
             </div>
             <textarea id="skuInputLeft" placeholder="Ingrese SKUs, uno por línea"></textarea>
             <div id="leftCount"></div>
@@ -187,10 +69,11 @@
     <script>
         var skuList = [];
         var mode = "vista"; // Por defecto, modo vista
+        var country = "CL"; // Por defecto, Chile
 
         function loadImage(sku, suffix = "") {
             return new Promise(function(resolve, reject) {
-                var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
+                var baseUrl = `https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabella${country}/`;
                 var imgUrl = `${baseUrl}${sku}${suffix}/w=1500,h=1500,fit=pad`;
                 var img = new Image();
                 img.src = imgUrl;
@@ -211,6 +94,15 @@
 
         $('#viewToggle').change(function() {
             mode = $(this).is(':checked') ? 'sku' : 'vista';
+            $('#imgContainer').empty();
+            skuList = [];
+            updateCounts();
+        });
+
+        $('.country-flag').click(function() {
+            $('.country-flag').removeClass('active');
+            $(this).addClass('active');
+            country = $(this).attr('id').replace('flag', '');
             $('#imgContainer').empty();
             skuList = [];
             updateCounts();
@@ -270,7 +162,7 @@
             var filenames = [];
 
             skuList.forEach(function(sku) {
-                var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
+                var baseUrl = `https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabella${country}/`;
                 var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
 
                 var originalSku = originalSkus.find(os => sku.startsWith(os));
@@ -316,6 +208,9 @@
         }
 
         $('#skuInputLeft, #skuInputRight').on('input', updateCounts);
+
+        // Activar Chile por defecto
+        $('#flagCL').addClass('active');
     </script>
 </body>
 </html>
