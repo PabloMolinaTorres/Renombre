@@ -191,6 +191,7 @@
     <script>
         var skuList = [];
         var mode = "vista"; // Por defecto, modo vista
+        var suffixes = ['_01', '_10', '_11', '_02', '_03', '_04', '_1', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
 
         function updateCounts() {
             var leftCount = $('#skuInputLeft').val().trim().split('\n').filter(line => line.trim() !== "").length;
@@ -250,7 +251,6 @@
                                 }
                             });
                         } else if (mode === "sku") {
-                            var suffixes = ['_01', '_10', '_11', '_02', '_03', '_04', '_1', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
                             suffixes.forEach(function(suffix) {
                                 loadImage(sku, suffix).then(function(imageElement) {
                                     if (imageElement) {
@@ -265,11 +265,11 @@
             } else {
                 alert('Por favor, ingrese SKUs.');
             }
-            updateCounts(); // Actualizar los contadores después de la búsqueda
+            updateCounts();
         });
 
         $('#downloadAll').click(function() {
-            var renameSkus = $('#skuInputRight').val().trim().split('\n').filter(line => line.trim() !== ""); // Filtrar líneas vacías
+            var renameSkus = $('#skuInputRight').val().trim().split('\n').filter(line => line.trim() !== "");
 
             var zip = new JSZip();
             var count = 0;
