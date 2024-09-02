@@ -259,8 +259,8 @@
             if (mode === "vista" && renameSkus.length !== foundImages.length) {
                 alert('La cantidad de SKUs en el lado izquierdo y derecho debe coincidir.');
                 return;
-            } else if (mode === "sku" && renameSkus.length !== 1) {
-                alert('En modo SKU, ingrese un solo SKU de renombre.');
+            } else if (mode === "sku" && renameSkus.length !== skus.length) {
+                alert('La cantidad de SKUs en el lado izquierdo y derecho debe coincidir.');
                 return;
             }
 
@@ -282,7 +282,7 @@
                     var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                     var imgUrl = `${baseUrl}${fullSku}/w=1500,h=1500,fit=pad`;
                     urls.push(imgUrl);
-                    filenames.push(renameSkus[0] + fullSku.slice(fullSku.lastIndexOf('_')));
+                    filenames.push(renameSkus[Math.floor(index / 19)] + fullSku.slice(fullSku.lastIndexOf('_')));
                 });
             }
 
