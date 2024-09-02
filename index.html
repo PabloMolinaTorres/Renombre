@@ -174,20 +174,20 @@
             <div class="imgContainer" id="imgContainer">
                 <!-- Imágenes aparecerán aquí -->
             </div>
-            <div id="leftCount">0 SKUs/Vistas</div>
+            <div id="skuCountLeft"></div>
         </div>
         <div class="rightContainer">
             <h3>Renombrar y Descargar</h3>
             <textarea id="skuInputRight" placeholder="Ingrese los nombres para renombrar, uno por línea"></textarea>
             <button id="downloadAll">Descargar Todo</button>
-            <div id="rightCount">0 nombres</div>
+            <div id="skuCountRight"></div>
         </div>
     </div>
 
     <script>
         var skuList = [];
-        var suffixes = ['_01', '_02', '_03', '_04', '_1', '_10', '_11', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
         var mode = "vista"; // Por defecto, modo vista
+        var suffixes = ['_01', '_02', '_03', '_04', '_1', '_10', '_11', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
 
         function loadImage(sku, suffix = "") {
             return new Promise(function(resolve, reject) {
@@ -201,11 +201,11 @@
                     var wrapper = $('<div class="imgWrapper"><a href="' + imgUrl + '" target="_blank"></a></div>');
                     wrapper.find('a').append(img);
                     wrapper.append('<div class="sku">' + sku + suffix + '</div>');
-                    resolve(wrapper);
+                    resolve({ element: wrapper, found: true });
                 };
 
                 img.onerror = function() {
-                    resolve(null); // Resolviendo la promesa sin añadir la miniatura "No disponible"
+                    resolve({ element: null, found: false });
                 };
             });
         }
@@ -214,89 +214,69 @@
             mode = $(this).is(':checked') ? 'sku' : 'vista';
             $('#imgContainer').empty();
             skuList = [];
-            updateCounters();
         });
 
         $('#buscar').click(function() {
             $('#imgContainer').empty();
             skuList = [];  // Resetear la lista
             var skus = $('#skuInputLeft').val().trim().split('\n');
+            var promises = [];
 
             if (skus.length > 0) {
                 skus.forEach(function(sku) {
                     sku = sku.trim();
                     if (sku) {
                         if (mode === "vista") {
-                            skuList.push(sku);
-                            loadImage(sku).then(function(imageElement) {
-                                if (imageElement) {
-                                    $('#imgContainer').append(imageElement);
-                                } else {
-                                    alert('Imagen no disponible para SKU: ' + sku);
-                                }
-                            });
+                            promises.push(loadImage(sku));
                         } else if (mode === "sku") {
                             suffixes.forEach(function(suffix) {
-                                loadImage(sku, suffix).then(function(imageElement) {
-                                    if (imageElement) {
-                                        $('#imgContainer').append(imageElement);
-                                        skuList.push(sku + suffix); // Solo añadir a la lista si la imagen se encuentra
-                                        updateCounters();
-                                    }
-                                });
+                                promises.push(loadImage(sku, suffix));
                             });
                         }
                     }
                 });
+
+                Promise.all(promises).then(function(results) {
+                    var foundSkus = results.filter(result => result.found);
+                    foundSkus.forEach(result => {
+                        skuList.push(result.element.find('img').attr('alt'));
+                        $('#imgContainer').append(result.element);
+                    });
+                    $('#skuCountLeft').text(skuList.length + " SKUs/Vistas");
+                });
             } else {
                 alert('Por favor, ingrese SKUs.');
             }
-
-            updateCounters();
         });
 
         $('#downloadAll').click(function() {
             var renameSkus = $('#skuInputRight').val().trim().split('\n');
-
-            if (renameSkus.length !== skuList.length) {
-                alert('La cantidad de SKUs/Vistas en el lado izquierdo y derecho debe coincidir.');
-                return;
-            }
-
             var zip = new JSZip();
             var count = 0;
             var zipFilename = getFormattedDate() + ".zip";
-            var urls = [];
-            var filenames = [];
 
             skuList.forEach(function(sku, index) {
                 var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
+                var suffix = sku.match(/_\d+$/) ? sku.match(/_\d+$/)[0] : '';
+                var newSku = renameSkus[Math.floor(index / suffixes.length)].trim() + suffix;
                 var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
-                urls.push(imgUrl);
-                filenames.push(renameSkus[index]);
-            });
+                var filename = newSku + ".jpg";
 
-            urls.forEach(function(url, index) {
-                var filename = filenames[index] + ".jpg";
-                JSZipUtils.getBinaryContent(url, function (err, data) {
+                JSZipUtils.getBinaryContent(imgUrl, function(err, data) {
                     if (err) {
-                        throw err;
+                        console.log("No se pudo descargar: " + imgUrl);
+                        return;
                     }
                     zip.file(filename, data, { binary: true });
                     count++;
-                    if (count === urls.length) {
-                        zip.generateAsync({ type: 'blob' }).then(function (content) {
+                    if (count === skuList.length) {
+                        zip.generateAsync({ type: 'blob' }).then(function(content) {
                             saveAs(content, zipFilename);
                         });
                     }
                 });
             });
         });
-
-        function updateCounters() {
-            $('#leftCount').text(skuList.length + " SKUs/Vistas");
-            $('#rightCount').text($('#skuInputRight').val().trim().split('\n').length + " nombres");
-        }
 
         function getFormattedDate() {
             var date = new Date();
@@ -306,8 +286,6 @@
             var minutes = String(date.getMinutes()).padStart(2, '0');
             return day + '-' + month + '_' + hours + minutes;
         }
-
-        $('#skuInputRight').on('input', updateCounters);
     </script>
 </body>
 </html>
