@@ -155,9 +155,11 @@
         input:checked + .slider:before {
             transform: translateX(26px);
         }
-        .count-display {
+        .counter {
             font-size: 12px;
-            color: #888;
+            margin-top: -15px;
+            text-align: right;
+            color: #555;
         }
     </style>
 </head>
@@ -174,7 +176,7 @@
                 <span>SKU</span>
             </div>
             <textarea id="skuInputLeft" placeholder="Ingrese SKUs, uno por línea"></textarea>
-            <div class="count-display" id="leftCount">0 SKUs/Vistas</div>
+            <div class="counter" id="leftCounter">0 SKUs/Vistas</div>
             <button id="buscar">Buscar</button>
             <div class="imgContainer" id="imgContainer">
                 <!-- Imágenes aparecerán aquí -->
@@ -183,7 +185,7 @@
         <div class="rightContainer">
             <h3>Renombrar y Descargar</h3>
             <textarea id="skuInputRight" placeholder="Ingrese los nombres para renombrar, uno por línea"></textarea>
-            <div class="count-display" id="rightCount">0 SKUs/Vistas</div>
+            <div class="counter" id="rightCounter">0 SKUs/Vistas</div>
             <button id="downloadAll">Descargar Todo</button>
         </div>
     </div>
@@ -193,21 +195,10 @@
         var mode = "vista"; // Por defecto, modo vista
         var suffixes = ['_01', '_10', '_11', '_02', '_03', '_04', '_1', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
 
-        function updateCounts() {
-            var leftCount = $('#skuInputLeft').val().trim().split('\n').filter(line => line.trim() !== "").length;
-            var rightCount = $('#skuInputRight').val().trim().split('\n').filter(line => line.trim() !== "").length;
-            
-            $('#leftCount').text(leftCount + " SKUs/Vistas");
-            $('#rightCount').text(rightCount + " SKUs/Vistas");
-        }
-
-        $('#skuInputLeft').on('input', updateCounts);
-        $('#skuInputRight').on('input', updateCounts);
-
         function loadImage(sku, suffix = "") {
             return new Promise(function(resolve, reject) {
                 var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
-                var imgUrl = `${baseUrl}${sku}${suffix}/w=1500,h=1500,fit=pad`;
+                var imgUrl = `${baseUrl}${sku}${suffix}/w=1004,h=1500,fit=cover`;
                 var img = new Image();
                 img.src = imgUrl;
                 img.alt = sku + suffix;
@@ -229,13 +220,13 @@
             mode = $(this).is(':checked') ? 'sku' : 'vista';
             $('#imgContainer').empty();
             skuList = [];
-            updateCounts();
+            updateCounters();
         });
 
         $('#buscar').click(function() {
             $('#imgContainer').empty();
-            skuList = [];
-            var skus = $('#skuInputLeft').val().trim().split('\n').filter(line => line.trim() !== "");
+            skuList = [];  // Resetear la lista
+            var skus = $('#skuInputLeft').val().trim().split('\n');
 
             if (skus.length > 0) {
                 skus.forEach(function(sku) {
@@ -252,9 +243,9 @@
                             });
                         } else if (mode === "sku") {
                             suffixes.forEach(function(suffix) {
+                                skuList.push(sku + suffix);
                                 loadImage(sku, suffix).then(function(imageElement) {
                                     if (imageElement) {
-                                        skuList.push(sku + suffix);
                                         $('#imgContainer').append(imageElement);
                                     }
                                 });
@@ -265,11 +256,17 @@
             } else {
                 alert('Por favor, ingrese SKUs.');
             }
-            updateCounts();
+
+            updateCounters();
         });
 
         $('#downloadAll').click(function() {
-            var renameSkus = $('#skuInputRight').val().trim().split('\n').filter(line => line.trim() !== "");
+            var renameSkus = $('#skuInputRight').val().trim().split('\n');
+
+            if (renameSkus.length !== $('#skuInputLeft').val().trim().split('\n').length) {
+                alert('La cantidad de SKUs/Vistas en el lado izquierdo y derecho debe coincidir');
+                return;
+            }
 
             var zip = new JSZip();
             var count = 0;
@@ -277,25 +274,31 @@
             var urls = [];
             var filenames = [];
 
-            skuList.forEach(function(sku, index) {
+            $('#skuInputLeft').val().trim().split('\n').forEach(function(sku, index) {
                 var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                 var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
-                urls.push(imgUrl);
-                var suffix = sku.match(/(_\d+|_\d{2})$/)[0]; // Extraer el sufijo del SKU
-                var baseSku = renameSkus[Math.floor(index / suffixes.length)] || renameSkus[index % renameSkus.length]; // Usar el renombre base si está disponible
-                filenames.push(baseSku + suffix);
+
+                // Obtener el SKU correspondiente para renombrar del lado derecho
+                var renameSku = renameSkus[index].trim();
+
+                // Generar las URLs y nombres de archivo
+                suffixes.forEach(function(suffix) {
+                    var skuWithSuffix = sku + suffix;
+                    var imgUrlWithSuffix = `${baseUrl}${skuWithSuffix}/w=1500,h=1500,fit=pad`;
+                    urls.push(imgUrlWithSuffix);
+                    filenames.push(renameSku + suffix + ".jpg");
+                });
             });
 
             urls.forEach(function(url, index) {
-                var filename = filenames[index] + ".jpg";
-                JSZipUtils.getBinaryContent(url, function (err, data) {
+                JSZipUtils.getBinaryContent(url, function(err, data) {
                     if (err) {
                         throw err;
                     }
-                    zip.file(filename, data, { binary: true });
+                    zip.file(filenames[index], data, { binary: true });
                     count++;
                     if (count === urls.length) {
-                        zip.generateAsync({ type: 'blob' }).then(function (content) {
+                        zip.generateAsync({ type: 'blob' }).then(function(content) {
                             saveAs(content, zipFilename);
                         });
                     }
@@ -311,6 +314,15 @@
             var minutes = String(date.getMinutes()).padStart(2, '0');
             return day + '-' + month + '_' + hours + minutes;
         }
+
+        function updateCounters() {
+            $('#leftCounter').text($('#skuInputLeft').val().trim().split('\n').length + " SKUs/Vistas");
+            $('#rightCounter').text($('#skuInputRight').val().trim().split('\n').length + " SKUs/Vistas");
+        }
+
+        $('#skuInputLeft, #skuInputRight').on('input', function() {
+            updateCounters();
+        });
     </script>
 </body>
 </html>
