@@ -281,8 +281,9 @@
                 var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                 var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
                 urls.push(imgUrl);
-                var filename = renameSkus[index] ? renameSkus[index] : sku;
-                filenames.push(filename);
+                var suffix = sku.match(/(_\d+|_\d{2})$/)[0]; // Extraer el sufijo del SKU
+                var baseSku = renameSkus[Math.floor(index / suffixes.length)] || sku.replace(suffix, ""); // Usar el renombre base si está disponible
+                filenames.push(baseSku + suffix);
             });
 
             urls.forEach(function(url, index) {
