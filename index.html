@@ -260,11 +260,6 @@
         $('#downloadAll').click(function() {
             var renameSkus = $('#skuInputRight').val().trim().split('\n');
 
-            if (renameSkus.length !== skuList.length) {
-                alert('La cantidad de SKUs en el lado izquierdo y derecho debe coincidir.');
-                return;
-            }
-
             var zip = new JSZip();
             var count = 0;
             var zipFilename = getFormattedDate() + ".zip";
