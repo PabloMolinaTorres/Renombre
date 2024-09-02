@@ -155,6 +155,10 @@
         input:checked + .slider:before {
             transform: translateX(26px);
         }
+        .count-display {
+            font-size: 12px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
@@ -170,6 +174,7 @@
                 <span>SKU</span>
             </div>
             <textarea id="skuInputLeft" placeholder="Ingrese SKUs, uno por línea"></textarea>
+            <div class="count-display" id="leftCount">0 SKUs/Vistas</div>
             <button id="buscar">Buscar</button>
             <div class="imgContainer" id="imgContainer">
                 <!-- Imágenes aparecerán aquí -->
@@ -178,14 +183,22 @@
         <div class="rightContainer">
             <h3>Renombrar y Descargar</h3>
             <textarea id="skuInputRight" placeholder="Ingrese los nombres para renombrar, uno por línea"></textarea>
+            <div class="count-display" id="rightCount">0 SKUs/Vistas</div>
             <button id="downloadAll">Descargar Todo</button>
         </div>
     </div>
 
     <script>
         var skuList = [];
-        var foundImages = [];
         var mode = "vista"; // Por defecto, modo vista
+
+        function updateCounts() {
+            $('#leftCount').text($('#skuInputLeft').val().trim().split('\n').length + " SKUs/Vistas");
+            $('#rightCount').text($('#skuInputRight').val().trim().split('\n').length + " SKUs/Vistas");
+        }
+
+        $('#skuInputLeft').on('input', updateCounts);
+        $('#skuInputRight').on('input', updateCounts);
 
         function loadImage(sku, suffix = "") {
             return new Promise(function(resolve, reject) {
@@ -212,13 +225,12 @@
             mode = $(this).is(':checked') ? 'sku' : 'vista';
             $('#imgContainer').empty();
             skuList = [];
-            foundImages = [];
+            updateCounts(); // Actualizar los contadores al cambiar de modo
         });
 
         $('#buscar').click(function() {
             $('#imgContainer').empty();
             skuList = [];  // Resetear la lista
-            foundImages = []; // Resetear imágenes encontradas
             var skus = $('#skuInputLeft').val().trim().split('\n');
 
             if (skus.length > 0) {
@@ -230,7 +242,6 @@
                             loadImage(sku).then(function(imageElement) {
                                 if (imageElement) {
                                     $('#imgContainer').append(imageElement);
-                                    foundImages.push(sku); // Agregar solo los encontrados
                                 } else {
                                     alert('Imagen no disponible para SKU: ' + sku);
                                 }
@@ -240,8 +251,8 @@
                             suffixes.forEach(function(suffix) {
                                 loadImage(sku, suffix).then(function(imageElement) {
                                     if (imageElement) {
+                                        skuList.push(sku + suffix);
                                         $('#imgContainer').append(imageElement);
-                                        foundImages.push(sku + suffix); // Agregar solo los encontrados
                                     }
                                 });
                             });
@@ -251,16 +262,14 @@
             } else {
                 alert('Por favor, ingrese SKUs.');
             }
+            updateCounts(); // Actualizar los contadores después de la búsqueda
         });
 
         $('#downloadAll').click(function() {
             var renameSkus = $('#skuInputRight').val().trim().split('\n');
 
-            if (mode === "vista" && renameSkus.length !== foundImages.length) {
-                alert('La cantidad de SKUs en el lado izquierdo y derecho debe coincidir.');
-                return;
-            } else if (mode === "sku" && renameSkus.length !== skuList.length) {
-                alert('La cantidad de SKUs en el lado izquierdo y derecho debe coincidir.');
+            if (renameSkus.length !== skuList.length) {
+                alert('La cantidad de SKUs/Vistas en el lado izquierdo y derecho debe coincidir.');
                 return;
             }
 
@@ -271,18 +280,18 @@
             var filenames = [];
 
             if (mode === "vista") {
-                foundImages.forEach(function(sku, index) {
+                skuList.forEach(function(sku, index) {
                     var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                     var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
                     urls.push(imgUrl);
                     filenames.push(renameSkus[index]);
                 });
             } else if (mode === "sku") {
-                foundImages.forEach(function(fullSku, index) {
+                skuList.forEach(function(sku, index) {
                     var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
-                    var imgUrl = `${baseUrl}${fullSku}/w=1500,h=1500,fit=pad`;
+                    var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
                     urls.push(imgUrl);
-                    filenames.push(renameSkus[Math.floor(index / 19)] + fullSku.slice(fullSku.lastIndexOf('_')));
+                    filenames.push(renameSkus[index]);
                 });
             }
 
