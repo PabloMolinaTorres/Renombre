@@ -282,7 +282,7 @@
                 var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
                 urls.push(imgUrl);
                 var suffix = sku.match(/(_\d+|_\d{2})$/)[0]; // Extraer el sufijo del SKU
-                var baseSku = renameSkus[Math.floor(index / suffixes.length)] || sku.replace(suffix, ""); // Usar el renombre base si está disponible
+                var baseSku = renameSkus[Math.floor(index / suffixes.length)] || renameSkus[index % renameSkus.length]; // Usar el renombre base si está disponible
                 filenames.push(baseSku + suffix);
             });
 
