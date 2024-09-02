@@ -155,13 +155,6 @@
         input:checked + .slider:before {
             transform: translateX(26px);
         }
-        .counter {
-            font-size: 12px;
-            font-weight: 700;
-            margin-top: -10px;
-            text-align: right;
-            color: #555;
-        }
     </style>
 </head>
 <body>
@@ -177,30 +170,24 @@
                 <span>SKU</span>
             </div>
             <textarea id="skuInputLeft" placeholder="Ingrese SKUs, uno por línea"></textarea>
-            <div class="counter" id="leftCounter">0 SKUs/Vistas</div>
             <button id="buscar">Buscar</button>
             <div class="imgContainer" id="imgContainer">
                 <!-- Imágenes aparecerán aquí -->
             </div>
+            <div id="leftCount">0 SKUs/Vistas</div>
         </div>
         <div class="rightContainer">
             <h3>Renombrar y Descargar</h3>
             <textarea id="skuInputRight" placeholder="Ingrese los nombres para renombrar, uno por línea"></textarea>
-            <div class="counter" id="rightCounter">0 nombres</div>
             <button id="downloadAll">Descargar Todo</button>
+            <div id="rightCount">0 nombres</div>
         </div>
     </div>
 
     <script>
         var skuList = [];
+        var suffixes = ['_01', '_02', '_03', '_04', '_1', '_10', '_11', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
         var mode = "vista"; // Por defecto, modo vista
-        const suffixes = ['_01', '_02', '_03', '_04', '_1', '_10', '_11', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
-
-        function updateCounters() {
-            $('#leftCounter').text(`${skuList.length} SKUs/Vistas`);
-            const rightNames = $('#skuInputRight').val().trim().split('\n');
-            $('#rightCounter').text(`${rightNames.length} nombres`);
-        }
 
         function loadImage(sku, suffix = "") {
             return new Promise(function(resolve, reject) {
@@ -250,10 +237,11 @@
                             });
                         } else if (mode === "sku") {
                             suffixes.forEach(function(suffix) {
-                                skuList.push(sku + suffix);
                                 loadImage(sku, suffix).then(function(imageElement) {
                                     if (imageElement) {
                                         $('#imgContainer').append(imageElement);
+                                        skuList.push(sku + suffix); // Solo añadir a la lista si la imagen se encuentra
+                                        updateCounters();
                                     }
                                 });
                             });
@@ -263,11 +251,18 @@
             } else {
                 alert('Por favor, ingrese SKUs.');
             }
+
             updateCounters();
         });
 
         $('#downloadAll').click(function() {
             var renameSkus = $('#skuInputRight').val().trim().split('\n');
+
+            if (renameSkus.length !== skuList.length) {
+                alert('La cantidad de SKUs/Vistas en el lado izquierdo y derecho debe coincidir.');
+                return;
+            }
+
             var zip = new JSZip();
             var count = 0;
             var zipFilename = getFormattedDate() + ".zip";
@@ -278,30 +273,30 @@
                 var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                 var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
                 urls.push(imgUrl);
-                
-                // Si hay un nombre personalizado en la misma posición, usarlo. Si no, usar el SKU original.
-                var customName = renameSkus[Math.floor(index / suffixes.length)] || sku.split('_')[0];
-                var suffix = sku.substring(sku.lastIndexOf('_'));
-                filenames.push(customName + suffix); // Conservar sufijo original
+                filenames.push(renameSkus[index]);
             });
 
             urls.forEach(function(url, index) {
                 var filename = filenames[index] + ".jpg";
-                JSZipUtils.getBinaryContent(url, function(err, data) {
+                JSZipUtils.getBinaryContent(url, function (err, data) {
                     if (err) {
-                        console.error(`Error descargando ${url}:`, err);
-                        return;
+                        throw err;
                     }
                     zip.file(filename, data, { binary: true });
                     count++;
                     if (count === urls.length) {
-                        zip.generateAsync({ type: 'blob' }).then(function(content) {
+                        zip.generateAsync({ type: 'blob' }).then(function (content) {
                             saveAs(content, zipFilename);
                         });
                     }
                 });
             });
         });
+
+        function updateCounters() {
+            $('#leftCount').text(skuList.length + " SKUs/Vistas");
+            $('#rightCount').text($('#skuInputRight').val().trim().split('\n').length + " nombres");
+        }
 
         function getFormattedDate() {
             var date = new Date();
@@ -311,6 +306,8 @@
             var minutes = String(date.getMinutes()).padStart(2, '0');
             return day + '-' + month + '_' + hours + minutes;
         }
+
+        $('#skuInputRight').on('input', updateCounters);
     </script>
 </body>
 </html>
