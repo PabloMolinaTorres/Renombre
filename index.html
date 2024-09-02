@@ -190,7 +190,7 @@
         function loadImage(sku, suffix = "") {
             return new Promise(function(resolve, reject) {
                 var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
-                var imgUrl = `${baseUrl}${sku}${suffix}/w=1004,h=1500,fit=cover`;
+                var imgUrl = `${baseUrl}${sku}${suffix}/w=1500,h=1500,fit=pad`;
                 var img = new Image();
                 img.src = imgUrl;
                 img.alt = sku + suffix;
@@ -273,14 +273,14 @@
             if (mode === "vista") {
                 foundImages.forEach(function(sku, index) {
                     var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
-                    var imgUrl = `${baseUrl}${sku}/w=1004,h=1500,fit=cover`;
+                    var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
                     urls.push(imgUrl);
                     filenames.push(renameSkus[index]);
                 });
             } else if (mode === "sku") {
                 foundImages.forEach(function(fullSku, index) {
                     var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
-                    var imgUrl = `${baseUrl}${fullSku}/w=1004,h=1500,fit=cover`;
+                    var imgUrl = `${baseUrl}${fullSku}/w=1500,h=1500,fit=pad`;
                     urls.push(imgUrl);
                     filenames.push(renameSkus[0] + fullSku.slice(fullSku.lastIndexOf('_')));
                 });
