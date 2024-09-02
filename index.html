@@ -192,6 +192,7 @@
 
     <script>
         var skuList = [];
+        var foundImages = [];
         var mode = "vista"; // Por defecto, modo vista
         var suffixes = ['_01', '_10', '_11', '_02', '_03', '_04', '_1', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
 
@@ -207,6 +208,7 @@
                     var wrapper = $('<div class="imgWrapper"><a href="' + imgUrl + '" target="_blank"></a></div>');
                     wrapper.find('a').append(img);
                     wrapper.append('<div class="sku">' + sku + suffix + '</div>');
+                    foundImages.push({ sku: sku, suffix: suffix }); // Almacena las imágenes encontradas
                     resolve(wrapper);
                 };
 
@@ -220,12 +222,14 @@
             mode = $(this).is(':checked') ? 'sku' : 'vista';
             $('#imgContainer').empty();
             skuList = [];
+            foundImages = []; // Resetea las imágenes encontradas
             updateCounters();
         });
 
         $('#buscar').click(function() {
             $('#imgContainer').empty();
             skuList = [];  // Resetear la lista
+            foundImages = []; // Resetea las imágenes encontradas
             var skus = $('#skuInputLeft').val().trim().split('\n');
 
             if (skus.length > 0) {
@@ -243,7 +247,6 @@
                             });
                         } else if (mode === "sku") {
                             suffixes.forEach(function(suffix) {
-                                skuList.push(sku + suffix);
                                 loadImage(sku, suffix).then(function(imageElement) {
                                     if (imageElement) {
                                         $('#imgContainer').append(imageElement);
@@ -262,38 +265,33 @@
 
         $('#downloadAll').click(function() {
             var renameSkus = $('#skuInputRight').val().trim().split('\n');
-
-            if (renameSkus.length !== $('#skuInputLeft').val().trim().split('\n').length) {
-                alert('La cantidad de SKUs/Vistas en el lado izquierdo y derecho debe coincidir');
-                return;
-            }
-
             var zip = new JSZip();
             var count = 0;
             var zipFilename = getFormattedDate() + ".zip";
             var urls = [];
             var filenames = [];
 
-            $('#skuInputLeft').val().trim().split('\n').forEach(function(sku, index) {
-                var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
-                var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
-
-                // Obtener el SKU correspondiente para renombrar del lado derecho
-                var renameSku = renameSkus[index].trim();
-
-                // Generar las URLs y nombres de archivo
-                suffixes.forEach(function(suffix) {
-                    var skuWithSuffix = sku + suffix;
-                    var imgUrlWithSuffix = `${baseUrl}${skuWithSuffix}/w=1500,h=1500,fit=pad`;
-                    urls.push(imgUrlWithSuffix);
-                    filenames.push(renameSku + suffix + ".jpg");
+            if (mode === "vista") {
+                foundImages.forEach(function(image, index) {
+                    var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
+                    var imgUrl = `${baseUrl}${image.sku}/w=1500,h=1500,fit=pad`;
+                    urls.push(imgUrl);
+                    filenames.push(renameSkus[index] + ".jpg");
                 });
-            });
+            } else if (mode === "sku") {
+                foundImages.forEach(function(image, index) {
+                    var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
+                    var imgUrl = `${baseUrl}${image.sku}${image.suffix}/w=1500,h=1500,fit=pad`;
+                    urls.push(imgUrl);
+                    filenames.push(renameSkus[Math.floor(index / suffixes.length)] + image.suffix + ".jpg");
+                });
+            }
 
             urls.forEach(function(url, index) {
                 JSZipUtils.getBinaryContent(url, function(err, data) {
                     if (err) {
-                        throw err;
+                        console.error("Error descargando:", url);
+                        return;
                     }
                     zip.file(filenames[index], data, { binary: true });
                     count++;
