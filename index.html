@@ -193,7 +193,6 @@
         var mode = "vista"; // Por defecto, modo vista
 
         function updateCounts() {
-            // Filtramos para contar solo líneas no vacías
             var leftCount = $('#skuInputLeft').val().trim().split('\n').filter(line => line.trim() !== "").length;
             var rightCount = $('#skuInputRight').val().trim().split('\n').filter(line => line.trim() !== "").length;
             
@@ -229,13 +228,13 @@
             mode = $(this).is(':checked') ? 'sku' : 'vista';
             $('#imgContainer').empty();
             skuList = [];
-            updateCounts(); // Actualizar los contadores al cambiar de modo
+            updateCounts();
         });
 
         $('#buscar').click(function() {
             $('#imgContainer').empty();
-            skuList = [];  // Resetear la lista
-            var skus = $('#skuInputLeft').val().trim().split('\n').filter(line => line.trim() !== ""); // Filtrar líneas vacías
+            skuList = [];
+            var skus = $('#skuInputLeft').val().trim().split('\n').filter(line => line.trim() !== "");
 
             if (skus.length > 0) {
                 skus.forEach(function(sku) {
@@ -272,11 +271,6 @@
         $('#downloadAll').click(function() {
             var renameSkus = $('#skuInputRight').val().trim().split('\n').filter(line => line.trim() !== ""); // Filtrar líneas vacías
 
-            if (renameSkus.length !== skuList.length) {
-                alert('La cantidad de SKUs/Vistas en el lado izquierdo y derecho debe coincidir.');
-                return;
-            }
-
             var zip = new JSZip();
             var count = 0;
             var zipFilename = getFormattedDate() + ".zip";
@@ -287,7 +281,8 @@
                 var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                 var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
                 urls.push(imgUrl);
-                filenames.push(renameSkus[index]);
+                var filename = renameSkus[index] ? renameSkus[index] : sku;
+                filenames.push(filename);
             });
 
             urls.forEach(function(url, index) {
