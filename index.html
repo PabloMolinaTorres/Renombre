@@ -156,6 +156,11 @@
         input:checked + .slider:before {
             transform: translateX(26px);
         }
+        .count-container {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -175,11 +180,13 @@
             <div class="imgContainer" id="imgContainer">
                 <!-- Imágenes aparecerán aquí -->
             </div>
+            <div class="count-container">SKUs/Vistas encontradas: <span id="countLeft">0</span></div>
         </div>
         <div class="rightContainer">
             <h3>Renombrar y Descargar</h3>
             <textarea id="skuInputRight" placeholder="Ingrese los nombres para renombrar, uno por línea"></textarea>
             <button id="downloadAll">Descargar Todo</button>
+            <div class="count-container">Nombres personalizados: <span id="countRight">0</span></div>
         </div>
     </div>
 
@@ -212,7 +219,19 @@
             mode = $(this).is(':checked') ? 'sku' : 'vista';
             $('#imgContainer').empty();
             skuList = [];
+            updateCounters();
         });
+
+        $('#skuInputLeft').on('input', updateCounters);
+        $('#skuInputRight').on('input', updateCounters);
+
+        function updateCounters() {
+            var leftCount = $('#skuInputLeft').val().trim().split('\n').length;
+            var rightCount = $('#skuInputRight').val().trim().split('\n').length;
+
+            $('#countLeft').text(leftCount);
+            $('#countRight').text(rightCount);
+        }
 
         $('#buscar').click(function() {
             $('#imgContainer').empty();
@@ -245,6 +264,7 @@
                         }
                     }
                 });
+                updateCounters();
             } else {
                 alert('Por favor, ingrese SKUs.');
             }
@@ -258,16 +278,11 @@
             var urls = [];
             var filenames = [];
 
-            if (skuList.length !== renameSkus.length) {
-                alert('La cantidad de SKUs/Vistas en el lado izquierdo y derecho debe coincidir.');
-                return;
-            }
-
             skuList.forEach(function(sku, index) {
                 var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                 var imgUrl = `${baseUrl}${sku}/w=1500,h=1500,fit=pad`;
                 urls.push(imgUrl);
-                filenames.push(renameSkus[index]);
+                filenames.push(renameSkus[index] || sku.split('_')[0]); // Renombrar o usar el nombre original si no se proporciona
             });
 
             urls.forEach(function(url, index) {
