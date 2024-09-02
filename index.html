@@ -155,11 +155,11 @@
         input:checked + .slider:before {
             transform: translateX(26px);
         }
-        .counter {
+        .countDisplay {
             font-size: 12px;
-            margin-top: -15px;
-            text-align: right;
-            color: #555;
+            font-weight: bold;
+            color: #666;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -176,7 +176,7 @@
                 <span>SKU</span>
             </div>
             <textarea id="skuInputLeft" placeholder="Ingrese SKUs, uno por línea"></textarea>
-            <div class="counter" id="leftCounter">0 SKUs/Vistas</div>
+            <div class="countDisplay" id="leftCount">Cantidad: 0</div>
             <button id="buscar">Buscar</button>
             <div class="imgContainer" id="imgContainer">
                 <!-- Imágenes aparecerán aquí -->
@@ -185,7 +185,7 @@
         <div class="rightContainer">
             <h3>Renombrar y Descargar</h3>
             <textarea id="skuInputRight" placeholder="Ingrese los nombres para renombrar, uno por línea"></textarea>
-            <div class="counter" id="rightCounter">0 SKUs/Vistas</div>
+            <div class="countDisplay" id="rightCount">Cantidad: 0</div>
             <button id="downloadAll">Descargar Todo</button>
         </div>
     </div>
@@ -208,12 +208,11 @@
                     var wrapper = $('<div class="imgWrapper"><a href="' + imgUrl + '" target="_blank"></a></div>');
                     wrapper.find('a').append(img);
                     wrapper.append('<div class="sku">' + sku + suffix + '</div>');
-                    foundImages.push({ sku: sku, suffix: suffix }); // Almacena las imágenes encontradas
-                    resolve(wrapper);
+                    resolve({ element: wrapper, sku: sku, suffix: suffix });
                 };
 
                 img.onerror = function() {
-                    resolve(null); // Resolviendo la promesa sin añadir la miniatura "No disponible"
+                    resolve(null);
                 };
             });
         }
@@ -222,45 +221,47 @@
             mode = $(this).is(':checked') ? 'sku' : 'vista';
             $('#imgContainer').empty();
             skuList = [];
-            foundImages = []; // Resetea las imágenes encontradas
-            updateCounters();
+            foundImages = [];
         });
 
         $('#buscar').click(function() {
             $('#imgContainer').empty();
             skuList = [];  // Resetear la lista
-            foundImages = []; // Resetea las imágenes encontradas
+            foundImages = []; // Reiniciar las imágenes encontradas
             var skus = $('#skuInputLeft').val().trim().split('\n');
 
-            if (skus.length > 0) {
-                skus.forEach(function(sku) {
-                    sku = sku.trim();
-                    if (sku) {
-                        if (mode === "vista") {
-                            skuList.push(sku);
-                            loadImage(sku).then(function(imageElement) {
+            skus.forEach(function(sku) {
+                sku = sku.trim();
+                if (sku) {
+                    if (mode === "vista") {
+                        skuList.push(sku);
+                        loadImage(sku).then(function(imageElement) {
+                            if (imageElement) {
+                                $('#imgContainer').append(imageElement.element);
+                                foundImages.push(imageElement);
+                            } else {
+                                alert('Imagen no disponible para SKU: ' + sku);
+                            }
+                        });
+                    } else if (mode === "sku") {
+                        suffixes.forEach(function(suffix) {
+                            skuList.push(sku + suffix);
+                            loadImage(sku, suffix).then(function(imageElement) {
                                 if (imageElement) {
-                                    $('#imgContainer').append(imageElement);
-                                } else {
-                                    alert('Imagen no disponible para SKU: ' + sku);
+                                    $('#imgContainer').append(imageElement.element);
+                                    foundImages.push(imageElement);
                                 }
                             });
-                        } else if (mode === "sku") {
-                            suffixes.forEach(function(suffix) {
-                                loadImage(sku, suffix).then(function(imageElement) {
-                                    if (imageElement) {
-                                        $('#imgContainer').append(imageElement);
-                                    }
-                                });
-                            });
-                        }
+                        });
                     }
-                });
-            } else {
-                alert('Por favor, ingrese SKUs.');
-            }
+                }
+            });
+            $('#leftCount').text('Cantidad: ' + skus.length);
+        });
 
-            updateCounters();
+        $('#skuInputRight').on('input', function() {
+            var renameSkus = $(this).val().trim().split('\n');
+            $('#rightCount').text('Cantidad: ' + renameSkus.length);
         });
 
         $('#downloadAll').click(function() {
@@ -279,11 +280,17 @@
                     filenames.push(renameSkus[index] + ".jpg");
                 });
             } else if (mode === "sku") {
+                var renameIndex = 0; // Este índice incrementará con cada nuevo SKU
                 foundImages.forEach(function(image, index) {
                     var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                     var imgUrl = `${baseUrl}${image.sku}${image.suffix}/w=1500,h=1500,fit=pad`;
+
+                    // Solo incrementar renameIndex si la imagen es la primera de un nuevo SKU
+                    if (index % suffixes.length === 0 && index > 0) {
+                        renameIndex++;
+                    }
                     urls.push(imgUrl);
-                    filenames.push(renameSkus[Math.floor(index / suffixes.length)] + image.suffix + ".jpg");
+                    filenames.push(renameSkus[renameIndex] + image.suffix + ".jpg");
                 });
             }
 
@@ -312,15 +319,6 @@
             var minutes = String(date.getMinutes()).padStart(2, '0');
             return day + '-' + month + '_' + hours + minutes;
         }
-
-        function updateCounters() {
-            $('#leftCounter').text($('#skuInputLeft').val().trim().split('\n').length + " SKUs/Vistas");
-            $('#rightCounter').text($('#skuInputRight').val().trim().split('\n').length + " SKUs/Vistas");
-        }
-
-        $('#skuInputLeft, #skuInputRight').on('input', function() {
-            updateCounters();
-        });
     </script>
 </body>
 </html>
