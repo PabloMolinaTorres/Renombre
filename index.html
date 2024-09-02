@@ -249,7 +249,6 @@
                 });
 
                 Promise.all(promises).then(() => {
-                    // Mostrar la cantidad de SKUs/Vistas encontrados
                     $('#countInfoRight').text(`${validUrls.length} SKUs/Vistas`);
                 });
             } else {
@@ -259,6 +258,11 @@
 
         $('#downloadAll').click(function() {
             var renameSkus = $('#skuInputRight').val().trim().split('\n');
+
+            if (renameSkus.length !== skuList.length) {
+                alert('La cantidad de SKUs en el lado izquierdo y derecho debe coincidir.');
+                return;
+            }
 
             var zip = new JSZip();
             var count = 0;
