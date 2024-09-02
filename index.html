@@ -184,6 +184,7 @@
 
     <script>
         var skuList = [];
+        var foundImages = [];
         var mode = "vista"; // Por defecto, modo vista
 
         function loadImage(sku, suffix = "") {
@@ -211,11 +212,13 @@
             mode = $(this).is(':checked') ? 'sku' : 'vista';
             $('#imgContainer').empty();
             skuList = [];
+            foundImages = [];
         });
 
         $('#buscar').click(function() {
             $('#imgContainer').empty();
             skuList = [];  // Resetear la lista
+            foundImages = []; // Resetear imágenes encontradas
             var skus = $('#skuInputLeft').val().trim().split('\n');
 
             if (skus.length > 0) {
@@ -227,6 +230,7 @@
                             loadImage(sku).then(function(imageElement) {
                                 if (imageElement) {
                                     $('#imgContainer').append(imageElement);
+                                    foundImages.push(sku); // Agregar solo los encontrados
                                 } else {
                                     alert('Imagen no disponible para SKU: ' + sku);
                                 }
@@ -234,10 +238,10 @@
                         } else if (mode === "sku") {
                             var suffixes = ['_01', '_10', '_11', '_02', '_03', '_04', '_1', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_90', '_91', '_92', '_93', '_94', '_95', '_96', '_97', '_98', '_99'];
                             suffixes.forEach(function(suffix) {
-                                skuList.push(sku + suffix);
                                 loadImage(sku, suffix).then(function(imageElement) {
                                     if (imageElement) {
                                         $('#imgContainer').append(imageElement);
+                                        foundImages.push(sku + suffix); // Agregar solo los encontrados
                                     }
                                 });
                             });
@@ -252,7 +256,7 @@
         $('#downloadAll').click(function() {
             var renameSkus = $('#skuInputRight').val().trim().split('\n');
 
-            if (mode === "vista" && renameSkus.length !== skuList.length) {
+            if (mode === "vista" && renameSkus.length !== foundImages.length) {
                 alert('La cantidad de SKUs en el lado izquierdo y derecho debe coincidir.');
                 return;
             } else if (mode === "sku" && renameSkus.length !== 1) {
@@ -267,14 +271,14 @@
             var filenames = [];
 
             if (mode === "vista") {
-                skuList.forEach(function(sku, index) {
+                foundImages.forEach(function(sku, index) {
                     var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                     var imgUrl = `${baseUrl}${sku}/w=1004,h=1500,fit=cover`;
                     urls.push(imgUrl);
                     filenames.push(renameSkus[index]);
                 });
             } else if (mode === "sku") {
-                skuList.forEach(function(fullSku, index) {
+                foundImages.forEach(function(fullSku, index) {
                     var baseUrl = 'https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/';
                     var imgUrl = `${baseUrl}${fullSku}/w=1004,h=1500,fit=cover`;
                     urls.push(imgUrl);
