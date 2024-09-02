@@ -200,7 +200,7 @@
                     var wrapper = $('<div class="imgWrapper"><a href="' + imgUrl + '" target="_blank"></a></div>');
                     wrapper.find('a').append(img);
                     wrapper.append('<div class="sku">' + sku + suffix + '</div>');
-                    resolve({ element: wrapper, url: imgUrl });
+                    resolve({ element: wrapper, url: imgUrl, originalSku: sku });
                 };
 
                 img.onerror = function() {
@@ -232,7 +232,7 @@
                             promises.push(loadImage(sku).then(function(result) {
                                 if (result) {
                                     $('#imgContainer').append(result.element);
-                                    validUrls.push({ sku: sku, url: result.url });
+                                    validUrls.push(result);
                                 }
                             }));
                         } else if (mode === "sku") {
@@ -240,7 +240,7 @@
                                 promises.push(loadImage(sku, suffix).then(function(result) {
                                     if (result) {
                                         $('#imgContainer').append(result.element);
-                                        validUrls.push({ sku: sku + suffix, url: result.url });
+                                        validUrls.push(result);
                                     }
                                 }));
                             });
@@ -249,7 +249,7 @@
                 });
 
                 Promise.all(promises).then(() => {
-                    $('#countInfoRight').text(`${validUrls.length} SKUs/Vistas`);
+                    $('#countInfoRight').text(`${skus.length} SKUs`);
                 });
             } else {
                 alert('Por favor, ingrese SKUs.');
@@ -270,10 +270,10 @@
             var urls = [];
             var filenames = [];
 
-            validUrls.forEach(function(item, index) {
-                var originalSku = skuList.find(sku => item.sku.startsWith(sku));
+            validUrls.forEach(function(item) {
+                var originalSku = item.originalSku;
                 var newSku = renameSkus[skuList.indexOf(originalSku)];
-                var newFilename = item.sku.replace(originalSku, newSku);
+                var newFilename = item.url.replace(originalSku, newSku);
                 urls.push(item.url);
                 filenames.push(newFilename);
             });
