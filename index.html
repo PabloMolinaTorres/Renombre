@@ -17,6 +17,7 @@
             max-width: 100%;
             height: auto;
             margin-top: 20px;
+            display: block;
         }
         button {
             margin-top: 20px;
@@ -31,52 +32,42 @@
             background-color: #ccc;
             cursor: not-allowed;
         }
+        .preview-container img {
+            max-width: 150px;
+            margin: 5px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
     <h1>Image Renamer</h1>
-    <input type="file" id="imageUpload" accept="image/*">
-    <br>
-    <input type="text" id="newName" placeholder="Enter new name">
+    <input type="file" id="imageUpload" accept="image/*" multiple>
     <br>
     <button id="renameButton" disabled>Rename and Download</button>
-    <br>
-    <img id="preview" src="#" alt="Image Preview" style="display:none;"/>
+    <div class="preview-container" id="previewContainer"></div>
 
     <script>
         const imageUpload = document.getElementById('imageUpload');
-        const newNameInput = document.getElementById('newName');
         const renameButton = document.getElementById('renameButton');
-        const preview = document.getElementById('preview');
+        const previewContainer = document.getElementById('previewContainer');
 
-        let uploadedImage;
+        let uploadedImages = [];
 
         imageUpload.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-                uploadedImage = file;
+            previewContainer.innerHTML = '';
+            uploadedImages = Array.from(event.target.files);
+            if (uploadedImages.length > 0) {
                 renameButton.disabled = false;
             }
+            uploadedImages.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
         });
 
-        renameButton.addEventListener('click', function() {
-            const newName = newNameInput.value.trim();
-            if (newName && uploadedImage) {
-                const blob = new Blob([uploadedImage], { type: uploadedImage.type });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = newName + '.' + uploadedImage.name.split('.').pop();
-                link.click();
-                URL.revokeObjectURL(url);
-            }
-        });
-    </script>
-</body>
-</html>
+        renameButton.addEventListener
