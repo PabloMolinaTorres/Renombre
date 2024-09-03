@@ -87,6 +87,7 @@
         fileUpload.addEventListener('change', function(event) {
             files = Array.from(event.target.files);
             fileTable.innerHTML = '';
+            skus = {};
 
             files.forEach((file, index) => {
                 const fileName = file.name.split('.')[0]; // Nombre del archivo sin la extensión
@@ -116,6 +117,27 @@
             });
 
             renameButton.disabled = files.length === 0;
+        });
+
+        // Capturar el evento de pegar en las celdas de texto
+        fileTable.addEventListener('paste', function(event) {
+            const activeElement = document.activeElement;
+            if (activeElement.tagName === 'INPUT' && activeElement.type === 'text') {
+                const pastedData = event.clipboardData.getData('text');
+                const rows = pastedData.split(/\r?\n/); // Separar por líneas
+
+                let currentInputIndex = Object.keys(skus).indexOf(activeElement.dataset.sku);
+
+                rows.forEach(row => {
+                    const input = document.querySelectorAll(`input[type="text"]`)[currentInputIndex];
+                    if (input) {
+                        input.value = row.trim(); // Asignar el valor pegado a la celda
+                    }
+                    currentInputIndex++;
+                });
+
+                event.preventDefault(); // Prevenir el comportamiento de pegado predeterminado
+            }
         });
 
         renameButton.addEventListener('click', function() {
