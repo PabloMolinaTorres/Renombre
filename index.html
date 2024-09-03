@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Image Renamer</title>
+    <title>File Renamer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -10,14 +10,34 @@
             padding: 20px;
             text-align: center;
         }
+        .container {
+            display: flex;
+            justify-content: center;
+        }
+        .file-list {
+            margin-right: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
         input[type="file"] {
             margin-bottom: 10px;
         }
-        img {
-            max-width: 100%;
-            height: auto;
-            margin-top: 20px;
-            display: block;
+        input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 5px;
         }
         button {
             margin-top: 20px;
@@ -28,46 +48,75 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        .preview-container img {
-            max-width: 150px;
-            margin: 5px;
-            display: inline-block;
-        }
     </style>
 </head>
 <body>
-    <h1>Image Renamer</h1>
-    <input type="file" id="imageUpload" accept="image/*" multiple>
-    <br>
+    <h1>File Renamer</h1>
+    <input type="file" id="fileUpload" multiple>
+    <div class="container">
+        <div class="file-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Original File Name</th>
+                        <th>New File Name</th>
+                    </tr>
+                </thead>
+                <tbody id="fileTable">
+                    <!-- Filas generadas dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
     <button id="renameButton" disabled>Rename and Download</button>
-    <div class="preview-container" id="previewContainer"></div>
 
     <script>
-        const imageUpload = document.getElementById('imageUpload');
+        const fileUpload = document.getElementById('fileUpload');
+        const fileTable = document.getElementById('fileTable');
         const renameButton = document.getElementById('renameButton');
-        const previewContainer = document.getElementById('previewContainer');
 
-        let uploadedImages = [];
+        let files = [];
 
-        imageUpload.addEventListener('change', function(event) {
-            previewContainer.innerHTML = '';
-            uploadedImages = Array.from(event.target.files);
-            if (uploadedImages.length > 0) {
-                renameButton.disabled = false;
-            }
-            uploadedImages.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    previewContainer.appendChild(img);
-                };
-                reader.readAsDataURL(file);
+        fileUpload.addEventListener('change', function(event) {
+            files = Array.from(event.target.files);
+            files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+            fileTable.innerHTML = '';
+            files.forEach((file, index) => {
+                const row = document.createElement('tr');
+                const originalNameCell = document.createElement('td');
+                const newNameCell = document.createElement('td');
+
+                originalNameCell.textContent = file.name;
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = `New name for ${file.name}`;
+                input.dataset.index = index;
+
+                newNameCell.appendChild(input);
+                row.appendChild(originalNameCell);
+                row.appendChild(newNameCell);
+                fileTable.appendChild(row);
             });
+
+            renameButton.disabled = files.length === 0;
         });
 
-        renameButton.addEventListener
+        renameButton.addEventListener('click', function() {
+            files.forEach((file, index) => {
+                const input = document.querySelector(`input[data-index="${index}"]`);
+                const newName = input.value.trim();
+                if (newName) {
+                    const blob = new Blob([file], { type: file.type });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = newName + '.' + file.name.split('.').pop();
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
