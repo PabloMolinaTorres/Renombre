@@ -5,21 +5,29 @@
     <title>Renombrador</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Lato', sans-serif;
             background-color: #f4f4f4;
             padding: 20px;
             text-align: center;
+            margin: 0;
         }
         .container {
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
         }
         .file-list {
-            margin-right: 20px;
+            margin: 20px;
+            width: 60%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         table {
             border-collapse: collapse;
             width: 100%;
+            margin-bottom: 20px;
         }
         table, th, td {
             border: 1px solid #ddd;
@@ -33,29 +41,51 @@
         }
         input[type="file"] {
             margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: calc(100% - 22px);
+            box-sizing: border-box;
         }
         input[type="text"] {
             width: 100%;
             box-sizing: border-box;
             padding: 5px;
-            border: none;
-            background-color: transparent;
-            font-family: inherit;
-            font-size: inherit;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
         button {
-            margin-top: 20px;
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+        #progressBarContainer {
+            width: 100%;
+            background-color: #ddd;
+            margin-top: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        #progressBar {
+            width: 0;
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>SKU Renamer and Zipper</h1>
+    <h1>Renombrador</h1>
     <input type="file" id="fileUpload" multiple accept=".jpg,.jpeg,.png">
     <div class="container">
         <div class="file-list">
@@ -72,7 +102,11 @@
             </table>
         </div>
     </div>
-    <button id="renameButton" disabled>Rename and Download as ZIP</button>
+    <button id="renameButton" disabled>Descargar</button>
+
+    <div id="progressBarContainer">
+        <div id="progressBar"></div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -80,6 +114,8 @@
         const fileUpload = document.getElementById('fileUpload');
         const fileTable = document.getElementById('fileTable');
         const renameButton = document.getElementById('renameButton');
+        const progressBarContainer = document.getElementById('progressBarContainer');
+        const progressBar = document.getElementById('progressBar');
 
         let files = [];
         let skus = {};
@@ -141,9 +177,15 @@
         });
 
         renameButton.addEventListener('click', function() {
+            progressBarContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+
             const zip = new JSZip();
             const date = new Date();
             const timestamp = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}`;
+
+            let processedFiles = 0;
+            const totalFiles = files.length;
 
             Object.keys(skus).forEach(sku => {
                 const input = document.querySelector(`input[data-sku="${sku}"]`);
@@ -153,12 +195,16 @@
                         const vista = file.name.split('_')[1]; // Extraer la vista
                         const newFileName = `${newSku}_${vista}`;
                         zip.file(newFileName, file);
+
+                        processedFiles++;
+                        progressBar.style.width = `${(processedFiles / totalFiles) * 100}%`;
                     });
                 }
             });
 
             zip.generateAsync({ type: 'blob' }).then(function(content) {
                 saveAs(content, `${timestamp}.zip`);
+                progressBarContainer.style.display = 'none';
             });
         });
     </script>
