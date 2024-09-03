@@ -35,6 +35,15 @@
             margin-bottom: 8px;
             color: #4CAF50;
         }
+        .errors {
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #d9534f;
+        }
         .file-list {
             width: 75%;
             background-color: white;
@@ -89,6 +98,7 @@
         }
         button:disabled {
             background-color: #ccc;
+            cursor: not-allowed;
         }
         #progressBarContainer {
             width: 200px;
@@ -113,15 +123,23 @@
     <h1>Renombrador</h1>
     
     <div class="container">
-        <div class="instructions">
-            <h2>Instrucciones:</h2>
-            <ol>
-                <li>Haz clic en "Seleccionar archivos" para cargar las imágenes que deseas renombrar.</li>
-                <li>Asegúrate de que los archivos estén en el orden correcto antes de asignar nuevos nombres.</li>
-                <li>Introduce el nuevo SKU para cada grupo de imágenes en la columna "Nuevo Renombre".</li>
-                <li>Puedes copiar y pegar los nuevos nombres desde Excel u otra fuente.</li>
-                <li>Haz clic en "Descargar" para obtener las imágenes renombradas en un archivo .zip con la fecha y hora actuales.</li>
-            </ol>
+        <div>
+            <div class="instructions">
+                <h2>Instrucciones:</h2>
+                <ol>
+                    <li>Haz clic en "Seleccionar archivos" para cargar las imágenes que deseas renombrar.</li>
+                    <li>Asegúrate de que los archivos estén en el orden correcto antes de asignar nuevos nombres.</li>
+                    <li>Introduce el nuevo SKU para cada grupo de imágenes en la columna "Nuevo Renombre".</li>
+                    <li>Puedes copiar y pegar los nuevos nombres desde Excel u otra fuente.</li>
+                    <li>Haz clic en "Descargar" para obtener las imágenes renombradas en un archivo .zip con la fecha y hora actuales.</li>
+                </ol>
+            </div>
+            <div class="errors" id="errorContainer">
+                <h2>Errores:</h2>
+                <ul id="errorList">
+                    <!-- Errores mostrados aquí -->
+                </ul>
+            </div>
         </div>
 
         <div class="file-list">
@@ -152,19 +170,55 @@
         const fileUpload = document.getElementById('fileUpload');
         const fileTable = document.getElementById('fileTable');
         const renameButton = document.getElementById('renameButton');
+        const errorContainer = document.getElementById('errorContainer');
+        const errorList = document.getElementById('errorList');
         const progressBarContainer = document.getElementById('progressBarContainer');
         const progressBar = document.getElementById('progressBar');
 
         let files = [];
-        let skus = {};
+        let skus = [];
+        let errors = [];
+
+        function validateSKU(fileName) {
+            const parts = fileName.split('_');
+            if (parts.length !== 2) {
+                return false;
+            }
+            const sku = parts[0];
+            const vista = parts[1];
+            if (vista.length > 3 || isNaN(vista) || Number(vista) < 1 || Number(vista) > 99) {
+                return false;
+            }
+            return true;
+        }
+
+        function checkErrors() {
+            if (errors.length > 0) {
+                errorContainer.style.display = 'block';
+                renameButton.disabled = true;
+            } else {
+                errorContainer.style.display = 'none';
+                renameButton.disabled = false;
+            }
+        }
 
         fileUpload.addEventListener('change', function(event) {
             files = Array.from(event.target.files);
             fileTable.innerHTML = '';
+            errorList.innerHTML = '';
             skus = {};
+            errors = [];
 
             files.forEach((file, index) => {
                 const fileName = file.name.split('.')[0]; // Nombre del archivo sin la extensión
+                if (!validateSKU(fileName)) {
+                    const errorItem = document.createElement('li');
+                    errorItem.textContent = `Archivo con nombre inválido: ${file.name}`;
+                    errorList.appendChild(errorItem);
+                    errors.push(file.name);
+                    return;
+                }
+
                 const sku = fileName.split('_')[0]; // Extraer el SKU
                 if (!skus[sku]) {
                     skus[sku] = [];
@@ -190,7 +244,7 @@
                 }
             });
 
-            renameButton.disabled = files.length === 0;
+            checkErrors();
         });
 
         // Capturar el evento de pegar en las celdas de texto
