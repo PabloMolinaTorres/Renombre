@@ -38,6 +38,10 @@
             width: 100%;
             box-sizing: border-box;
             padding: 5px;
+            border: none;
+            background-color: transparent;
+            font-family: inherit;
+            font-size: inherit;
         }
         button {
             margin-top: 20px;
@@ -90,7 +94,7 @@
 
                 const input = document.createElement('input');
                 input.type = 'text';
-                input.placeholder = `New name for ${file.name}`;
+                input.placeholder = `New name without extension`;
                 input.dataset.index = index;
 
                 newNameCell.appendChild(input);
@@ -111,7 +115,7 @@
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = newName + '.' + file.name.split('.').pop();
+                    link.download = newName; // Solo el nuevo nombre sin extensión
                     link.click();
                     URL.revokeObjectURL(url);
                 }
