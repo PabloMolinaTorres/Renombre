@@ -37,7 +37,8 @@
             text-align: left;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #8fca00; /* Color verde */
+            color: white;
         }
         input[type="file"] {
             margin-bottom: 10px;
@@ -70,15 +71,19 @@
             background-color: #ccc;
         }
         #progressBarContainer {
-            width: 100%;
+            width: 200px;
             background-color: #ddd;
-            margin-top: 20px;
+            margin-top: 10px;
             border-radius: 5px;
             display: none;
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            z-index: 1000;
         }
         #progressBar {
             width: 0;
-            height: 20px;
+            height: 10px;
             background-color: #4CAF50;
             border-radius: 5px;
         }
@@ -92,8 +97,8 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Original SKU</th>
-                        <th>New SKU</th>
+                        <th>SKU Original</th>
+                        <th>Nuevo Renombre</th>
                     </tr>
                 </thead>
                 <tbody id="fileTable">
