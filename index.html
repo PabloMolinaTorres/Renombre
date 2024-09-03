@@ -106,6 +106,27 @@
             renameButton.disabled = files.length === 0;
         });
 
+        // Capturar el evento de pegar en las celdas de texto
+        fileTable.addEventListener('paste', function(event) {
+            const activeElement = document.activeElement;
+            if (activeElement.tagName === 'INPUT' && activeElement.type === 'text') {
+                const pastedData = event.clipboardData.getData('text');
+                const rows = pastedData.split(/\r?\n/); // Separar por líneas
+
+                let currentInputIndex = parseInt(activeElement.dataset.index);
+
+                rows.forEach(row => {
+                    const input = document.querySelector(`input[data-index="${currentInputIndex}"]`);
+                    if (input) {
+                        input.value = row.trim(); // Asignar el valor pegado a la celda
+                    }
+                    currentInputIndex++;
+                });
+
+                event.preventDefault(); // Prevenir el comportamiento de pegado predeterminado
+            }
+        });
+
         renameButton.addEventListener('click', function() {
             files.forEach((file, index) => {
                 const input = document.querySelector(`input[data-index="${index}"]`);
