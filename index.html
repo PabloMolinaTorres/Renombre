@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>File Renamer</title>
+    <title>SKU Renamer and Zipper</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,15 +55,15 @@
     </style>
 </head>
 <body>
-    <h1>File Renamer</h1>
-    <input type="file" id="fileUpload" multiple>
+    <h1>SKU Renamer and Zipper</h1>
+    <input type="file" id="fileUpload" multiple accept=".jpg,.jpeg,.png">
     <div class="container">
         <div class="file-list">
             <table>
                 <thead>
                     <tr>
-                        <th>Original File Name</th>
-                        <th>New File Name</th>
+                        <th>Original SKU</th>
+                        <th>New SKU</th>
                     </tr>
                 </thead>
                 <tbody id="fileTable">
@@ -72,74 +72,71 @@
             </table>
         </div>
     </div>
-    <button id="renameButton" disabled>Rename and Download</button>
+    <button id="renameButton" disabled>Rename and Download as ZIP</button>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script>
         const fileUpload = document.getElementById('fileUpload');
         const fileTable = document.getElementById('fileTable');
         const renameButton = document.getElementById('renameButton');
 
         let files = [];
+        let skus = {};
 
         fileUpload.addEventListener('change', function(event) {
             files = Array.from(event.target.files);
-            files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
             fileTable.innerHTML = '';
+
             files.forEach((file, index) => {
-                const row = document.createElement('tr');
-                const originalNameCell = document.createElement('td');
-                const newNameCell = document.createElement('td');
+                const fileName = file.name.split('.')[0]; // Nombre del archivo sin la extensión
+                const sku = fileName.split('_')[0]; // Extraer el SKU
+                if (!skus[sku]) {
+                    skus[sku] = [];
+                }
+                skus[sku].push(file);
 
-                originalNameCell.textContent = file.name;
+                if (!document.querySelector(`input[data-sku="${sku}"]`)) {
+                    const row = document.createElement('tr');
+                    const originalSkuCell = document.createElement('td');
+                    const newSkuCell = document.createElement('td');
 
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.placeholder = `New name without extension`;
-                input.dataset.index = index;
+                    originalSkuCell.textContent = sku;
 
-                newNameCell.appendChild(input);
-                row.appendChild(originalNameCell);
-                row.appendChild(newNameCell);
-                fileTable.appendChild(row);
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.placeholder = `New SKU for ${sku}`;
+                    input.dataset.sku = sku;
+
+                    newSkuCell.appendChild(input);
+                    row.appendChild(originalSkuCell);
+                    row.appendChild(newSkuCell);
+                    fileTable.appendChild(row);
+                }
             });
 
             renameButton.disabled = files.length === 0;
         });
 
-        // Capturar el evento de pegar en las celdas de texto
-        fileTable.addEventListener('paste', function(event) {
-            const activeElement = document.activeElement;
-            if (activeElement.tagName === 'INPUT' && activeElement.type === 'text') {
-                const pastedData = event.clipboardData.getData('text');
-                const rows = pastedData.split(/\r?\n/); // Separar por líneas
-
-                let currentInputIndex = parseInt(activeElement.dataset.index);
-
-                rows.forEach(row => {
-                    const input = document.querySelector(`input[data-index="${currentInputIndex}"]`);
-                    if (input) {
-                        input.value = row.trim(); // Asignar el valor pegado a la celda
-                    }
-                    currentInputIndex++;
-                });
-
-                event.preventDefault(); // Prevenir el comportamiento de pegado predeterminado
-            }
-        });
-
         renameButton.addEventListener('click', function() {
-            files.forEach((file, index) => {
-                const input = document.querySelector(`input[data-index="${index}"]`);
-                const newName = input.value.trim();
-                if (newName) {
-                    const blob = new Blob([file], { type: file.type });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = newName; // Solo el nuevo nombre sin extensión
-                    link.click();
-                    URL.revokeObjectURL(url);
+            const zip = new JSZip();
+            const date = new Date();
+            const timestamp = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}`;
+
+            Object.keys(skus).forEach(sku => {
+                const input = document.querySelector(`input[data-sku="${sku}"]`);
+                const newSku = input.value.trim();
+                if (newSku) {
+                    skus[sku].forEach(file => {
+                        const vista = file.name.split('_')[1]; // Extraer la vista
+                        const newFileName = `${newSku}_${vista}`;
+                        zip.file(newFileName, file);
+                    });
                 }
+            });
+
+            zip.generateAsync({ type: 'blob' }).then(function(content) {
+                saveAs(content, `${timestamp}.zip`);
             });
         });
     </script>
