@@ -145,7 +145,7 @@
         </div>
 
         <script>
-            const vistasMango = ['_99.jpg', '_99_R.jpg', '_99-99999999_01.jpg', '_99_D5.jpg', '_99_D3.jpg', '_99_B.jpg', '_99_D1.jpg', '_99_D4.jpg', '_99_D8.jpg', '_99_D0.jpg'];
+            const vistasMango = ['_99.jpg', '_99_R.jpg', '_99-99999999_01.jpg', '_99_D5.jpg', '_99_D3.jpg', '_99_B.jpg', '_99_D1.jpg', '_99_D4.jpg', '_99_D8.jpg', '_99_D0.jpg', '_D1.jpg', '_D2.jpg', '_D3.jpg', '_D4.jpg', '_D5.jpg'];
 
             // Función para mostrar imágenes al buscar
             $('#buscar').click(function() {
@@ -156,8 +156,18 @@
                     modelosMango.forEach(function(modelo) {
                         vistasMango.forEach(function(vista) {
                             const imgUrl = `https://shop.mango.com/assets/rcs/pics/static/T7/fotos/S/${modelo}${vista}`;
-                            const imgElement = `<div class="imgWrapper"><img src="${imgUrl}" alt="${modelo}"><div class="sku">${modelo}</div></div>`;
-                            $('#imgContainer').append(imgElement);
+                            const img = new Image();
+                            img.src = imgUrl;
+                            img.alt = modelo;
+
+                            img.onload = function() {
+                                const imgElement = `<div class="imgWrapper"><img src="${imgUrl}" alt="${modelo}"><div class="sku">${modelo}</div></div>`;
+                                $('#imgContainer').append(imgElement);
+                            };
+
+                            img.onerror = function() {
+                                console.log(`Imagen no encontrada: ${imgUrl}`);
+                            };
                         });
                     });
                 } else {
