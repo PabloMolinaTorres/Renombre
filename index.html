@@ -14,7 +14,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js?v=1.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js?v=1.0"></script>
     <style>
-        /* Estilos del diseño original */
         * {
             box-sizing: border-box;
             font-family: 'Lato', sans-serif;
@@ -31,92 +30,101 @@
             height: 100%;
             width: 100%;
         }
-        .leftMenu, .rightMenu {
-            width: 320px;
-            min-width: 320px;
-            background-color: #fff;
-            overflow-y: auto;
-            position: relative;
-        }
-        .leftMenu {
-            border-right: 1px solid #eeeeee;
-        }
-        .rightMenu {
-            border-left: 1px solid #eeeeee;
-        }
-        .leftMenu .intro, .rightMenu .intro {
-            font-size: 12px;
-            padding: 20px 20px 0;
-        }
-        .leftMenu textarea, .rightMenu .error-list {
-            width: calc(100% - 40px);
-            border: 1px solid #eee;
-            margin: 20px;
-            height: 400px;
-        }
-        .leftMenu button, .rightMenu button {
-            width: calc(100% - 40px);
-            border: none;
-            margin: 0 20px 20px;
-            background-color: #8fca00;
-            height: 50px;
-            line-height: 50px;
-            padding: 0;
-            border-radius: 5px;
-            color: white;
-            font-size: 12px;
-            letter-spacing: .075em;
-            cursor: pointer;
-        }
-        .rightMenu button[disabled] {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .error-list {
-            height: calc(100% - 100px);
+        .leftContainer {
+            width: 35%;
+            display: flex;
             padding: 20px;
-            margin: 20px;
-            border: 1px solid #eee;
-            background-color: #f9f9f9;
-            overflow-y: auto;
+            box-sizing: border-box;
+            flex-direction: column;
+        }
+        .columns {
+            display: flex;
+            justify-content: space-between;
+        }
+        .column {
+            width: 48%;
         }
         .rightContainer {
-            flex-grow: 1;
-            overflow-y: auto;
+            width: 60%;
             padding: 20px;
-            background-color: #fff;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
         .imgContainer {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            margin-top: 20px;
         }
-        .imgContainer .imgWrapper {
-            width: 200px;
-            height: 200px;
+        .imgWrapper {
+            width: 120px;
+            height: 120px;
             position: relative;
             display: block;
             overflow: hidden;
             border: 1px solid #eeeeee;
+            text-align: center;
         }
-        .imgContainer .imgWrapper img {
+        .imgWrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .download-icon {
+        .sku {
             position: absolute;
-            top: 0px;
-            right: 0px;
-            width: 24px;
-            height: 24px;
-            opacity: 0.8;
-            cursor: pointer;
-            background-image: url('https://raw.githubusercontent.com/PabloMolinaTorres/Visualiza2/main/descarga.png');
-            background-size: cover;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            text-align: center;
+            font-size: 10px;
+            padding: 2px;
         }
-        .download-icon:hover {
-            opacity: 1;
+        .visualizadorContainer {
+            width: 5%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-end;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .visualizadorContainer a {
+            background-color: #8fca00;
+            padding: 5px 15px;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            display: inline-block;
+            margin-bottom: 10px; /* Espacio entre botones */
+        }
+        textarea {
+            width: 100%;
+            margin: 20px 0;
+            padding: 10px;
+            height: 250px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            resize: none;
+        }
+        button {
+            width: 100%;
+            border: none;
+            margin: 20px 0;
+            background-color: #8fca00;
+            height: 50px;
+            line-height: 50px;
+            border-radius: 5px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
         }
         .setBar {
             background-color: #fff;
@@ -146,17 +154,32 @@
 </head>
 <body>
     <div class="container">
-        <div class="leftMenu">
+        <!-- Left Container -->
+        <div class="leftContainer">
             <div class="intro">Ingrese los modelos de Mango y SKUs de Falabella:</div>
-            <textarea id="mangoInput" placeholder="Modelos Mango, uno por línea"></textarea>
-            <textarea id="falabellaInput" placeholder="SKUs Falabella, uno por línea"></textarea>
+            <div class="columns">
+                <div class="column">
+                    <textarea id="mangoInput" placeholder="Modelos Mango, uno por línea"></textarea>
+                </div>
+                <div class="column">
+                    <textarea id="falabellaInput" placeholder="SKUs Falabella, uno por línea"></textarea>
+                </div>
+            </div>
             <button id="downloadAll">Descargar Todo</button>
         </div>
+
+        <!-- Right Container -->
         <div class="rightContainer">
             <div class="setBar">
                 <button id="descargartodo">DESCARGAR TODO</button>
             </div>
             <div class="imgContainer"></div>
+        </div>
+
+        <!-- Visualizador Container -->
+        <div class="visualizadorContainer">
+            <a href="index.html">Visualizador</a>
+            <a href="renombre.html">Renombre local</a>
         </div>
     </div>
 
