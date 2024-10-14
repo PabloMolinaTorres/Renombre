@@ -126,38 +126,6 @@
             cursor: pointer;
             text-transform: uppercase;
         }
-        .icon-selector {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-        .icon-selector img {
-            width: 50px;
-            height: 50px;
-            margin: 0 10px;
-            cursor: pointer;
-        }
-        .icon-selector img.inactive {
-            filter: grayscale(100%);
-        }
-        .country-selector {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-        .country-link {
-            color: grey;
-            font-size: 14px;
-            margin-right: 10px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .country-link.active {
-            color: #333;
-            font-size: 16px;
-            font-weight: bold;
-            border-bottom: 2px solid #8fca00;
-        }
         .switch-container {
             display: flex;
             align-items: center;
@@ -220,19 +188,8 @@
             <!-- Título Replicar -->
             <div class="title">Replicar</div>
 
-            <!-- Icon Selector -->
-            <div class="icon-selector">
-                <img src="https://raw.githubusercontent.com/PabloMolinaTorres/inpages/main/falabella.png" id="falabellaIcon" class="active" alt="Falabella">
-                <img src="https://raw.githubusercontent.com/PabloMolinaTorres/inpages/main/sodimac-bn.png" id="sodimacIcon" class="inactive" alt="Sodimac">
-                <img src="https://raw.githubusercontent.com/PabloMolinaTorres/inpages/main/tottus-bn.png" id="tottusIcon" class="inactive" alt="Tottus">
-            </div>
-
-            <!-- Country Selector -->
-            <div class="country-selector" id="countrySelector">
-                <a href="#" class="country-link" id="linkCL">Chile</a>
-                <a href="#" class="country-link" id="linkPE">Perú</a>
-                <a href="#" class="country-link" id="linkCO">Colombia</a>
-            </div>
+            <!-- Espacio en blanco en lugar de los logos y el selector de países -->
+            <div style="height: 70px;"></div>
 
             <div class="columns">
                 <div class="column">
